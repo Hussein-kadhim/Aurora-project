@@ -16,6 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($gebruikersnaam === '' || $wachtwoord === '') {
         $foutmelding = 'Vul gebruikersnaam en wachtwoord in.';
+    } elseif (!filter_var($gebruikersnaam, FILTER_VALIDATE_EMAIL)) {
+        $foutmelding = 'Vul een geldig e-mailadres in.';
+    } elseif (strlen($gebruikersnaam) > 100) {
+        $foutmelding = 'Gebruikersnaam mag maximaal 100 tekens bevatten.';
+    } elseif (strlen($wachtwoord) > 255) {
+        $foutmelding = 'Wachtwoord mag maximaal 255 tekens bevatten.';
     } else {
         try {
             $stmt = $pdo->prepare("
@@ -85,14 +91,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1>Aurora</h1>
     <p class="subtitel">Log in op je account</p>
 
-    <?php if ($foutmelding !== ''): ?>
-        <div class="foutmelding"><?= htmlspecialchars($foutmelding) ?></div>
-    <?php endif; ?>
+    <!-- Foutmeldingscontainer voor server- en client-side validatie -->
+    <div id="js-foutmelding" class="foutmelding" style="<?= $foutmelding === '' ? 'display: none;' : '' ?>">
+        <?= htmlspecialchars($foutmelding) ?>
+    </div>
 
-    <form method="post" action="">
-        <label for="gebruikersnaam">Gebruikersnaam</label>
+    <form id="loginForm" method="post" action="" novalidate>
+        <label for="gebruikersnaam">Gebruikersnaam (E-mailadres)</label>
         <input
-            type="text"
+            type="email"
             id="gebruikersnaam"
             name="gebruikersnaam"
             value="<?= htmlspecialchars($_POST['gebruikersnaam'] ?? '') ?>"
@@ -116,6 +123,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 
     <a href="informatie/home.php" class="login-terug">Verder zonder inloggen</a>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("loginForm");
+    const gebruikersnaamInput = document.getElementById("gebruikersnaam");
+    const wachtwoordInput = document.getElementById("wachtwoord");
+    const foutmeldingDiv = document.getElementById("js-foutmelding");
+
+    function toonFout(bericht) {
+        foutmeldingDiv.textContent = bericht;
+        foutmeldingDiv.style.display = "block";
+    }
+
+    function verbergFout() {
+        foutmeldingDiv.textContent = "";
+        foutmeldingDiv.style.display = "none";
+    }
+
+    form.addEventListener("submit", function(event) {
+        let errors = [];
+        verbergFout();
+        gebruikersnaamInput.classList.remove("has-error");
+        wachtwoordInput.classList.remove("has-error");
+
+        const gebruikersnaam = gebruikersnaamInput.value.trim();
+        const wachtwoord = wachtwoordInput.value;
+
+        // E-mail regex pattern
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (gebruikersnaam === "") {
+            errors.push("Vul je gebruikersnaam in.");
+            gebruikersnaamInput.classList.add("has-error");
+        } else if (!emailRegex.test(gebruikersnaam)) {
+            errors.push("Vul een geldig e-mailadres in.");
+            gebruikersnaamInput.classList.add("has-error");
+        }
+
+        if (wachtwoord === "") {
+            errors.push("Vul je wachtwoord in.");
+            wachtwoordInput.classList.add("has-error");
+        }
+
+        if (errors.length > 0) {
+            event.preventDefault();
+            toonFout(errors.join(" "));
+        }
+    });
+
+    // Verwijder foutstijlen zodra de gebruiker typt
+    gebruikersnaamInput.addEventListener("input", function() {
+        gebruikersnaamInput.classList.remove("has-error");
+        if (!gebruikersnaamInput.classList.contains("has-error") && !wachtwoordInput.classList.contains("has-error")) {
+            verbergFout();
+        }
+    });
+
+    wachtwoordInput.addEventListener("input", function() {
+        wachtwoordInput.classList.remove("has-error");
+        if (!gebruikersnaamInput.classList.contains("has-error") && !wachtwoordInput.classList.contains("has-error")) {
+            verbergFout();
+        }
+    });
+});
+</script>
 </div>
 
 </body>
