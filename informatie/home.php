@@ -1,11 +1,4 @@
 <?php
-/*
-  Auteur       : KadhimH
-  Datum        : 2026-05-30
-  Beschrijving : Tijdelijke homepagina van Aurora. Toont de ingelogde gebruiker
-                 en zijn rol. Wordt later uitgebreid met het volledige dashboard.
-  Opmerkingen  : Niet ingelogde bezoekers zien een knop om te kunnen inloggen.
-*/
 session_start();
 ?>
 <!DOCTYPE html>
@@ -29,8 +22,15 @@ session_start();
             color: #131313;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+        }
+
+        .home-main {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
+            padding: 40px 24px;
         }
 
         .kaart {
@@ -137,33 +137,39 @@ session_start();
 </head>
 <body>
 
-<div class="kaart">
-    <?php if (!empty($_SESSION['ingelogd'])): ?>
-        <div class="badge"><?= htmlspecialchars($_SESSION['rol'] ?? 'Gebruiker') ?></div>
-        <h1>Welkom terug!</h1>
-        <p>Je bent succesvol ingelogd in het Aurora systeem.</p>
+<?php require_once __DIR__ . '/../includes/navbar.php'; ?>
 
-        <div class="info-rij">
-            <span>Naam</span>
-            <span><?= htmlspecialchars($_SESSION['naam'] ?? '—') ?></span>
-        </div>
-        <div class="info-rij">
-            <span>Gebruikersnaam</span>
-            <span><?= htmlspecialchars($_SESSION['gebruikersnaam'] ?? '—') ?></span>
-        </div>
-        <div class="info-rij">
-            <span>Rol</span>
-            <span><?= htmlspecialchars($_SESSION['rol'] ?? '—') ?></span>
-        </div>
+<main class="home-main">
+    <div class="kaart">
+        <?php if (!empty($_SESSION['ingelogd'])): ?>
+            <div class="badge"><?= htmlspecialchars($_SESSION['rol'] ?? 'Gebruiker') ?></div>
+            <h1>Welkom terug!</h1>
+            <p>Je bent succesvol ingelogd in het Aurora systeem.</p>
 
-        <a href="../uitloggen.php" class="btn-uitloggen">Uitloggen</a>
+            <div class="info-rij">
+                <span>Naam</span>
+                <span><?= htmlspecialchars($_SESSION['naam'] ?? '—') ?></span>
+            </div>
+            <div class="info-rij">
+                <span>Gebruikersnaam</span>
+                <span><?= htmlspecialchars($_SESSION['gebruikersnaam'] ?? '—') ?></span>
+            </div>
+            <div class="info-rij">
+                <span>Rol</span>
+                <span><?= htmlspecialchars($_SESSION['rol'] ?? '—') ?></span>
+            </div>
 
-    <?php else: ?>
-        <h1>Aurora</h1>
-        <p>Je bent momenteel niet ingelogd. Log in om toegang te krijgen tot het systeem.</p>
-        <a href="../login.php" class="btn-inloggen">Inloggen</a>
-    <?php endif; ?>
-</div>
+            <a href="../uitloggen.php" class="btn-uitloggen">Uitloggen</a>
+
+        <?php else: ?>
+            <h1>Aurora</h1>
+            <p>Je bent momenteel niet ingelogd. Log in om toegang te krijgen tot het systeem.</p>
+            <a href="../login.php" class="btn-inloggen">Inloggen</a>
+        <?php endif; ?>
+    </div>
+</main>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
 
 </body>
 </html>
