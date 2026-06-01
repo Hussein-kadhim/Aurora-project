@@ -21,6 +21,7 @@
 .aurora-footer p {
     opacity: 0.6;
     line-height: 1.6;
+    color: #FFFFFF;
 }
 
 .aurora-footer a {

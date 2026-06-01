@@ -254,13 +254,6 @@ tr:hover td {
     background-color: rgba(229, 211, 179, 0.04);
 }
 
-/* Custom Checkbox */
-.custom-checkbox {
-    width: 18px;
-    height: 18px;
-    accent-color: #D31027;            /* Secondary */
-    cursor: pointer;
-}
 
 /* Username & Name info in column */
 .username-cell {
@@ -534,10 +527,6 @@ tr:hover td {
         text-align: left;
     }
 
-    td:first-child {
-        display: none;
-    }
-
     /* Column 2: Username cell with GEBRUIKERSNAAM label */
     td.username-cell {
         margin-bottom: 20px;
@@ -559,11 +548,11 @@ tr:hover td {
     }
 
     /* Column 3: Rol cell with Rol label */
-    td:nth-child(3) {
+    td.role-cell {
         margin-bottom: 20px;
     }
 
-    td:nth-child(3)::before {
+    td.role-cell::before {
         content: "Rol";
         display: block;
         font-size: 0.7rem;
@@ -574,7 +563,7 @@ tr:hover td {
         margin-bottom: 6px;
     }
 
-    td:nth-child(3) .role-badge {
+    td.role-cell .role-badge {
         background-color: transparent !important;
         border: none !important;
         padding: 0 !important;
@@ -585,13 +574,13 @@ tr:hover td {
     }
 
     /* Column 4: Status positioned in top right of the card */
-    td:nth-child(4) {
+    td.status-cell {
         position: absolute;
         top: 24px;
         right: 24px;
     }
 
-    td:nth-child(4) .status-indicator {
+    td.status-cell .status-indicator {
         font-size: 0 !important;
         padding: 0 !important;
         background: transparent !important;
@@ -601,7 +590,7 @@ tr:hover td {
         height: 12px;
     }
 
-    td:nth-child(4) .status-dot {
+    td.status-cell .status-dot {
         display: block !important;
         width: 12px !important;
         height: 12px !important;
@@ -610,11 +599,11 @@ tr:hover td {
         margin: 0 !important;
     }
 
-    td:nth-child(4) .status-indicator.status-active .status-dot {
+    td.status-cell .status-indicator.status-active .status-dot {
         background-color: #10B981 !important;
     }
 
-    td:nth-child(4) .status-indicator.status-archived .status-dot {
+    td.status-cell .status-indicator.status-archived .status-dot {
         background-color: #BDBDBD !important;
     }
 

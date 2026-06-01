@@ -87,9 +87,6 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th width="40">
-                                        <input type="checkbox" class="custom-checkbox" id="selectAll">
-                                    </th>
                                     <th>Gebruikersnaam</th>
                                     <th>Rol</th>
                                     <th>Status</th>
@@ -104,19 +101,16 @@
                                         $isIngelogd = ($isIngelogdVal === "\x01" || $isIngelogdVal === 1 || $isIngelogdVal === "1" || $isIngelogdVal === true);
                                     ?>
                                     <tr>
-                                        <td>
-                                            <input type="checkbox" class="custom-checkbox">
-                                        </td>
                                         <td class="username-cell">
                                             <?= htmlspecialchars($row['Gebruikersnaam']) ?>
                                             <span class="full-name"><?= htmlspecialchars(trim($row['Voornaam'] . ' ' . ($row['Tussenvoegsel'] ?? '') . ' ' . $row['Achternaam'])) ?></span>
                                         </td>
-                                        <td>
+                                        <td class="role-cell">
                                             <span class="role-badge role-<?= strtolower(htmlspecialchars($row['RolNaam'] ?? 'Lid')) ?>">
                                                 <?= htmlspecialchars($row['RolNaam'] ?? 'Bezoeker') ?>
                                             </span>
                                         </td>
-                                        <td>
+                                        <td class="status-cell">
                                             <?php if ($isIngelogd): ?>
                                                 <span class="status-indicator status-active">
                                                     <span class="status-dot"></span>
@@ -171,17 +165,6 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Eenvoudige select-all checkbox logica
-        const selectAll = document.getElementById("selectAll");
-        if (selectAll) {
-            selectAll.addEventListener("change", function() {
-                const checkboxes = document.querySelectorAll("tbody input[type='checkbox']");
-                checkboxes.forEach(cb => {
-                    cb.checked = selectAll.checked;
-                });
-            });
-        }
-
         // Direct filteren zodra je typt (zonder pagina-reload!)
         const searchInput = document.getElementById("searchInput");
         const searchForm = document.getElementById("searchForm");
