@@ -15,6 +15,7 @@ if ($root_path === '') {
 }
 
 $isAdmin = (!empty($_SESSION['rol']) && $_SESSION['rol'] === 'Administrator');
+$isStaff = (!empty($_SESSION['rol']) && ($_SESSION['rol'] === 'Administrator' || $_SESSION['rol'] === 'Medewerker'));
 $isIngelogd = !empty($_SESSION['ingelogd']);
 ?>
 <style>
@@ -240,9 +241,13 @@ $isIngelogd = !empty($_SESSION['ingelogd']);
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $root_path ?>melding/melding-beheren/index.php" onclick="alert('Melding beheren is nog in ontwikkeling.'); return false;">Melding beheren</a>
                 </li>
+            <?php endif; ?>
+            <?php if ($isStaff): ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/index.php" onclick="alert('Ticket beheren is nog in ontwikkeling.'); return false;">Ticket beheren</a>
+                    <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/index.php">Ticket beheren</a>
                 </li>
+            <?php endif; ?>
+            <?php if ($isAdmin): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $root_path ?>voorstelling-opstellen/voorstelling-beheren/index.php" onclick="alert('Voorstelling beheren is nog in ontwikkeling.'); return false;">Voorstelling beheren</a>
                 </li>
