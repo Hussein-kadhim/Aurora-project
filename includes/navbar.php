@@ -246,6 +246,9 @@ $isIngelogd = !empty($_SESSION['ingelogd']);
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/index.php">Ticket beheren</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/scan.php">Ticket scannen</a>
+                </li>
             <?php endif; ?>
             <?php if ($isAdmin): ?>
                 <li class="nav-item">

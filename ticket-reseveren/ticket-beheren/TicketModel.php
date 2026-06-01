@@ -56,4 +56,45 @@ class TicketModel {
         $stmt->execute();
         return (int) $stmt->fetchColumn();
     }
+
+    /**
+     * Haal een ticket op basis van barcode op.
+     */
+    public function getTicketByBarcode($barcode) {
+        $sql = "
+            SELECT 
+                t.Id,
+                t.Nummer AS TicketNummer,
+                t.Barcode,
+                t.Status AS TicketStatus,
+                v.Naam AS VoorstellingNaam,
+                v.Datum AS VoorstellingDatum,
+                v.Tijd AS VoorstellingTijd,
+                g.Voornaam AS BezoekerVoornaam,
+                g.Tussenvoegsel AS BezoekerTussenvoegsel,
+                g.Achternaam AS BezoekerAchternaam,
+                p.Tarief AS PrijsTarief,
+                p.Opmerking AS PrijsOpmerking
+            FROM Ticket t
+            JOIN Bezoeker b ON t.BezoekerId = b.Id
+            JOIN Gebruiker g ON b.GebruikerId = g.Id
+            JOIN Voorstelling v ON t.VoorstellingId = v.Id
+            JOIN Prijs p ON t.PrijsId = p.Id
+            WHERE t.Barcode = :barcode AND t.IsActief = 1
+            LIMIT 1
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':barcode', $barcode, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * Wijzig de status van een ticket naar 'gebruikt'.
+     */
+    public function markTicketAsUsed($ticketId) {
+        $stmt = $this->pdo->prepare("UPDATE Ticket SET Status = 'gebruikt' WHERE Id = ?");
+        return $stmt->execute([$ticketId]);
+    }
 }
+
