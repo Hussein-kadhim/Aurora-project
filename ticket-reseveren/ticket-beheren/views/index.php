@@ -57,6 +57,10 @@
                         <span>Filters</span>
                     </button>
                     
+                    <a href="scan.php" class="btn-primary" style="background-color: #131313; border-color: #131313; margin-right: 8px;">
+                        Scan Ticket
+                    </a>
+                    
                     <a href="#" class="btn-primary" onclick="alert('Nieuw ticket toevoegen is nog in ontwikkeling.'); return false;">
                         + Nieuw Ticket
                     </a>
