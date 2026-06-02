@@ -221,12 +221,12 @@ CREATE TABLE Melding (
   Opmerkingen  : Wachtwoorden zijn bcrypt-gehasht opgeslagen.
 */
 INSERT INTO Gebruiker (Id, Voornaam, Tussenvoegsel, Achternaam, Gebruikersnaam, Wachtwoord, IsIngelogd, Ingelogd, Uitgelogd, IsActief, Opmerking) VALUES
-(1, 'Jan', 'van', 'Dam', 'jan.vandam@aurora.nl', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Hoofdbeheerder systeem'),
-(2, 'Sarah', NULL, 'Koning', 'sarah.koning@aurora.nl', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Ticketcontroleur'),
-(3, 'Mark', 'de', 'Vries', 'mark.devries@aurora.nl', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Evenementen beheerder'),
-(4, 'Lisa', NULL, 'Jansen', 'lisa.jansen@gmail.com', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Reguliere bezoeker'),
-(5, 'Ahmed', NULL, 'El Mansouri', 'ahmed.elmansouri@outlook.com', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Premium bezoeker'),
-(6, 'Emma', 'van der', 'Berg', 'emma.vdberg@hotmail.com', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Nieuwe bezoeker');
+(1, 'Jan', 'van', 'Dam', 'jan.vandam@aurora.nl', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Hoofdbeheerder systeem'),
+(2, 'Sarah', NULL, 'Koning', 'sarah.koning@aurora.nl', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Ticketcontroleur'),
+(3, 'Mark', 'de', 'Vries', 'mark.devries@aurora.nl', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Evenementen beheerder'),
+(4, 'Lisa', NULL, 'Jansen', 'lisa.jansen@gmail.com', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Reguliere bezoeker'),
+(5, 'Ahmed', NULL, 'El Mansouri', 'ahmed.elmansouri@outlook.com', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Premium bezoeker'),
+(6, 'Emma', 'van der', 'Berg', 'emma.vdberg@hotmail.com', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Nieuwe bezoeker');
 
 /*
   Auteur       : KadhimH
