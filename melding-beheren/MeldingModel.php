@@ -73,6 +73,9 @@ class MeldingModel {
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
             return [];
         }
     }
@@ -114,6 +117,9 @@ class MeldingModel {
             $stmt->execute();
             return (int) $stmt->fetchColumn();
         } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
             return 0;
         }
     }
