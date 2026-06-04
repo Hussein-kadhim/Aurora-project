@@ -48,7 +48,9 @@ class MeldingController {
         try {
             $totalFiltered = $this->model->countMeldingen($filterType, $filterStatus, $filterDate);
             $meldingen     = $this->model->getMeldingen($filterType, $filterStatus, $filterDate, $limit, $offset);
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
+            $techError = true;
+        } catch (Throwable $e) {
             $techError = true;
         }
 
