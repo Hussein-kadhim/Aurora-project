@@ -71,9 +71,10 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
 
         /* ── Hero ── */
         .hero {
-            background: linear-gradient(135deg, #D31027 0%, #7a0817 100%);
+            background: linear-gradient(135deg, rgba(211,16,39,0.88) 0%, rgba(90,6,18,0.92) 100%),
+                        url('../assets/images/theater-hero.png') center/cover no-repeat;
             color: #FFFFFF;
-            padding: 72px 24px 64px;
+            padding: 80px 24px 72px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -83,21 +84,28 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(ellipse at 70% 50%, rgba(229,211,179,0.15) 0%, transparent 65%);
+            background: radial-gradient(ellipse at 70% 50%, rgba(229,211,179,0.10) 0%, transparent 65%);
             pointer-events: none;
         }
 
         .hero-badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             background: rgba(255,255,255,0.18);
             border: 1px solid rgba(255,255,255,0.3);
             border-radius: 20px;
-            padding: 4px 16px;
+            padding: 5px 18px;
             font-size: 0.78rem;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
+        }
+
+        .hero-badge svg {
+            width: 16px;
+            height: 16px;
         }
 
         .hero h1 {
@@ -176,9 +184,10 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
         }
 
         .foutmelding-blok .fout-icoon {
-            font-size: 1.5rem;
-            line-height: 1;
             flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            color: #D31027;
         }
 
         .foutmelding-blok .fout-tekst strong {
@@ -260,7 +269,12 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            color: #D31027;
+        }
+
+        .actie-kaart .kaart-icoon svg {
+            width: 22px;
+            height: 22px;
         }
 
         .actie-kaart h3 {
@@ -313,9 +327,7 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
         .vs-badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            background: rgba(211,16,39,0.09);
-            color: #D31027;
+            gap: 6px;
             border-radius: 6px;
             padding: 3px 10px;
             font-size: 0.75rem;
@@ -325,9 +337,28 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
             width: fit-content;
         }
 
+        .vs-badge.beschikbaar {
+            background: rgba(16, 185, 129, 0.10);
+            color: #059669;
+        }
+
+        .vs-badge.beschikbaar .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10B981;
+        }
+
         .vs-badge.uitverkocht {
             background: rgba(19,19,19,0.08);
             color: #555;
+        }
+
+        .vs-badge.uitverkocht .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #999;
         }
 
         .voorstelling-kaart h3 {
@@ -360,8 +391,10 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
             opacity: 0.6;
         }
 
-        .vs-info-item span.icoon {
-            font-size: 0.9rem;
+        .vs-info-item svg {
+            width: 15px;
+            height: 15px;
+            opacity: 0.7;
         }
 
         .geen-voorstellingen {
@@ -439,9 +472,12 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
 
 <!-- Hero sectie -->
 <section class="hero">
-    <div class="hero-badge">🎭 Welkom bij Aurora</div>
+    <div class="hero-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        Welkom bij Aurora
+    </div>
     <h1>Jouw podium voor<br>onvergetelijke ervaringen</h1>
-    <p>Reserveer tickets, bekijk aankomende voorstellingen en beheer uw account — alles op één plek.</p>
+    <p>Reserveer tickets, bekijk aankomende voorstellingen en beheer uw account — alles op een plek.</p>
     <div class="hero-acties">
         <?php if ($isIngelogd): ?>
             <a href="../ticket-reseveren/ticket-beheren/index.php" class="btn-hero-primary" id="btn-tickets-reserveren">Tickets reserveren</a>
@@ -457,7 +493,9 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
 <?php if ($dbFout): ?>
 <div class="foutcontainer" role="alert" aria-live="assertive">
     <div class="foutmelding-blok">
-        <div class="fout-icoon">⚠️</div>
+        <div class="fout-icoon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
         <div class="fout-tekst">
             <strong>Server niet bereikbaar</strong>
             <span><?= htmlspecialchars($foutmelding) ?></span>
@@ -472,7 +510,7 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
     <?php if ($isIngelogd): ?>
     <div class="welkom-banner" role="complementary" aria-label="Welkomstbericht">
         <div class="welkom-tekst">
-            <h2>Welkom terug, <?= htmlspecialchars($naam) ?>!</h2>
+            <h2>Welkom terug, <?= htmlspecialchars($naam) ?></h2>
             <p>U bent ingelogd en heeft toegang tot alle functies voor uw rol.</p>
         </div>
         <span class="rol-badge"><?= htmlspecialchars($rol) ?></span>
@@ -490,73 +528,87 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
 
             <!-- Altijd zichtbaar: Voorstellingen bekijken -->
             <a href="#voorstellingen" class="actie-kaart" id="link-voorstellingen" aria-label="Ga naar aankomende voorstellingen">
-                <div class="kaart-icoon">🎭</div>
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </div>
                 <h3>Voorstellingen</h3>
                 <p>Bekijk aankomende shows, ballets en theaterproducties.</p>
-                <span class="pijl">Bekijken →</span>
+                <span class="pijl">Bekijken &rarr;</span>
             </a>
 
             <!-- Bezoeker / Ingelogd -->
             <?php if ($isIngelogd): ?>
             <a href="../ticket-reseveren/ticket-beheren/index.php" class="actie-kaart" id="link-tickets" aria-label="Ga naar ticket reserveren">
-                <div class="kaart-icoon">🎟️</div>
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+                </div>
                 <h3>Ticket reserveren</h3>
                 <p>Reserveer uw tickets voor aankomende voorstellingen.</p>
-                <span class="pijl">Reserveren →</span>
+                <span class="pijl">Reserveren &rarr;</span>
             </a>
             <?php else: ?>
             <a href="../login.php" class="actie-kaart" id="link-inloggen" aria-label="Ga naar inlogpagina">
-                <div class="kaart-icoon">🔐</div>
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
                 <h3>Inloggen</h3>
                 <p>Log in om tickets te reserveren en uw account te beheren.</p>
-                <span class="pijl">Inloggen →</span>
+                <span class="pijl">Inloggen &rarr;</span>
             </a>
             <?php endif; ?>
 
             <!-- Medewerker & Beheerder -->
             <?php if ($isStaff): ?>
             <a href="../ticket-reseveren/ticket-beheren/index.php" class="actie-kaart" id="link-ticket-beheren" aria-label="Ga naar ticket beheren">
-                <div class="kaart-icoon">🗂️</div>
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                </div>
                 <h3>Ticket beheren</h3>
                 <p>Controleer en beheer gereserveerde tickets van bezoekers.</p>
-                <span class="pijl">Beheren →</span>
+                <span class="pijl">Beheren &rarr;</span>
             </a>
             <?php endif; ?>
 
             <!-- Alleen Beheerder -->
             <?php if ($isAdmin): ?>
             <a href="../account-registratie/account-beheren/index.php" class="actie-kaart" id="link-accounts" aria-label="Ga naar account beheren">
-                <div class="kaart-icoon">👤</div>
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
                 <h3>Account beheren</h3>
                 <p>Voeg gebruikers toe, wijzig rollen en beheer toegangsrechten.</p>
-                <span class="pijl">Beheren →</span>
+                <span class="pijl">Beheren &rarr;</span>
             </a>
 
             <a href="../voorstelling-opstellen/voorstelling-beheren/index.php" class="actie-kaart" id="link-voorstelling-beheren"
                onclick="alert('Voorstelling beheren is nog in ontwikkeling.'); return false;"
                aria-label="Ga naar voorstelling beheren (in ontwikkeling)">
-                <div class="kaart-icoon">📋</div>
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                </div>
                 <h3>Voorstelling beheren</h3>
                 <p>Plan en bewerk theatervoorstellingen en programmaonderdelen.</p>
-                <span class="pijl">Beheren →</span>
+                <span class="pijl">Beheren &rarr;</span>
             </a>
 
             <a href="../melding/melding-beheren/index.php" class="actie-kaart" id="link-meldingen"
                onclick="alert('Melding beheren is nog in ontwikkeling.'); return false;"
                aria-label="Ga naar melding beheren (in ontwikkeling)">
-                <div class="kaart-icoon">📣</div>
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                </div>
                 <h3>Melding beheren</h3>
                 <p>Bekijk reviews, klachten en systeemnotificaties van bezoekers.</p>
-                <span class="pijl">Beheren →</span>
+                <span class="pijl">Beheren &rarr;</span>
             </a>
 
-            <a href="../medewerker-registratie/medewerker-beheren/index.php" class="actie-kaart" id="link-medewerkers"
-               onclick="alert('Medewerker beheren is nog in ontwikkeling.'); return false;"
-               aria-label="Ga naar medewerker beheren (in ontwikkeling)">
-                <div class="kaart-icoon">🧑‍💼</div>
+            <a href="../medewerker-registratie/medewerker-beheren/index.php" class="actie-kaart" id="link-medewerkers" aria-label="Ga naar medewerker beheren">
+                <div class="kaart-icoon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
                 <h3>Medewerker beheren</h3>
                 <p>Registreer en beheer medewerkers en hun functies.</p>
-                <span class="pijl">Beheren →</span>
+                <span class="pijl">Beheren &rarr;</span>
             </a>
             <?php endif; ?>
 
@@ -576,14 +628,14 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
             <!-- Databasefout: voorstellingen kunnen niet worden geladen -->
             <div class="voorstelling-raster">
                 <div class="geen-voorstellingen" role="status">
-                    ⚠️ Voorstellingen kunnen momenteel niet worden geladen. Probeer het later opnieuw.
+                    Voorstellingen kunnen momenteel niet worden geladen. Probeer het later opnieuw.
                 </div>
             </div>
 
         <?php elseif (empty($voorstellingen)): ?>
             <div class="voorstelling-raster">
                 <div class="geen-voorstellingen" role="status">
-                    🎭 Er zijn momenteel geen aankomende voorstellingen gepland.
+                    Er zijn momenteel geen aankomende voorstellingen gepland.
                 </div>
             </div>
 
@@ -595,8 +647,9 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
                     $isUitverkocht = ($vs['Beschikbaarheid'] === 'Uitverkocht');
                 ?>
                 <article class="voorstelling-kaart">
-                    <div class="vs-badge <?= $isUitverkocht ? 'uitverkocht' : '' ?>">
-                        <?= $isUitverkocht ? '🔴 Uitverkocht' : '🟢 Beschikbaar' ?>
+                    <div class="vs-badge <?= $isUitverkocht ? 'uitverkocht' : 'beschikbaar' ?>">
+                        <span class="status-dot"></span>
+                        <?= $isUitverkocht ? 'Uitverkocht' : 'Beschikbaar' ?>
                     </div>
                     <h3><?= htmlspecialchars($vs['Naam']) ?></h3>
                     <?php if (!empty($vs['Beschrijving'])): ?>
@@ -604,15 +657,15 @@ $isStaff    = ($rol === 'Administrator' || $rol === 'Medewerker');
                     <?php endif; ?>
                     <div class="vs-info-rij">
                         <div class="vs-info-item">
-                            <span class="icoon">📅</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <span><?= htmlspecialchars($datum) ?></span>
                         </div>
                         <div class="vs-info-item">
-                            <span class="icoon">🕐</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span><?= htmlspecialchars($tijd) ?></span>
                         </div>
                         <div class="vs-info-item">
-                            <span class="icoon">🎫</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
                             <span><?= (int)$vs['MaxAantalTickets'] ?> plaatsen</span>
                         </div>
                     </div>
