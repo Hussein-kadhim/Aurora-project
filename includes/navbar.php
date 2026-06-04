@@ -80,6 +80,10 @@ $isIngelogd = !empty($_SESSION['ingelogd']);
     font-weight: 600;
     transition: color 0.2s;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 8px;
 }
 
 .aurora-nav .nav-link:hover {
@@ -252,7 +256,7 @@ $isIngelogd = !empty($_SESSION['ingelogd']);
             <?php endif; ?>
             <?php if ($isAdmin): ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= $root_path ?>voorstelling-opstellen/voorstelling-beheren/index.php" onclick="alert('Voorstelling beheren is nog in ontwikkeling.'); return false;">Voorstelling beheren</a>
+                    <a class="nav-link" href="<?= $root_path ?>voorstelling-opstellen/voorstelling-beheren/index.php">Voorstelling beheren</a>
                 </li>
             <?php endif; ?>
         </ul>
