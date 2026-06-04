@@ -243,20 +243,18 @@ $isIngelogd = !empty($_SESSION['ingelogd']);
                     <a class="nav-link" href="<?= $root_path ?>medewerker-registratie/medewerker-beheren/index.php">Medewerker beheren</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= $root_path ?>melding/melding-beheren/index.php" onclick="alert('Melding beheren is nog in ontwikkeling.'); return false;">Melding beheren</a>
+                    <a class="nav-link" href="<?= $root_path ?>voorstelling-opstellen/voorstelling-beheren/index.php">Voorstelling beheren</a>
                 </li>
             <?php endif; ?>
             <?php if ($isStaff): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>melding-beheren/meldingen.php">Melding beheren</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/index.php">Ticket beheren</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/scan.php">Ticket scannen</a>
-                </li>
-            <?php endif; ?>
-            <?php if ($isAdmin): ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= $root_path ?>voorstelling-opstellen/voorstelling-beheren/index.php">Voorstelling beheren</a>
                 </li>
             <?php endif; ?>
         </ul>
