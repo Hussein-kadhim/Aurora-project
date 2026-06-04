@@ -2,7 +2,7 @@
 
 
 $host     = "localhost";
-$dbname   = "Aurora";
+$dbname   = "aurora";
 $user     = "root";
 $password = "";
 
@@ -15,5 +15,8 @@ $options = [
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $password, $options);
 } catch (PDOException $e) {
+    if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+        throw $e;
+    }
     die("Connectie mislukt: " . $e->getMessage());
 }
