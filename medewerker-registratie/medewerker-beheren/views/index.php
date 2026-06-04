@@ -102,6 +102,12 @@
                             <?php endif; ?>
                         </div>
                     </form>
+                    <a href="#" class="btn-primary" onclick="alert('Nieuwe medewerker toevoegen is nog in ontwikkeling.'); return false;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 18px; height: 18px; margin-right: 6px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Nieuwe Medewerker Toevoegen
+                    </a>
                 </div>
 
                 <!-- Happy Scenario: Lijst van medewerkers in tabel -->
