@@ -358,9 +358,8 @@ tr:hover td {
 
 /* Action Buttons */
 .actions-cell {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+    text-align: right;
+    white-space: nowrap;
 }
 
 .action-btn {
