@@ -726,3 +726,49 @@ tr:hover td {
     border: 1px solid rgba(211, 16, 39, 0.2);
     color: #7f1d1d;
 }
+
+/* ===================================================
+   Terug Link
+   =================================================== */
+.back-link-container {
+    margin-bottom: 20px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #131313;
+    opacity: 0.6;
+    text-decoration: none;
+    transition: opacity 0.2s, color 0.2s;
+}
+
+.back-link:hover {
+    opacity: 1;
+    color: #D31027;
+}
+
+/* ===================================================
+   Formulier Kaart
+   =================================================== */
+.form-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(19, 19, 19, 0.03);
+    padding: 40px;
+}
+
+.form-section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #131313;
+    opacity: 0.45;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(229, 211, 179, 0.5);
+}
