@@ -81,4 +81,26 @@ class MedewerkerModel {
             return 0;
         }
     }
+
+    /**
+     * Controleert of een e-mailadres / gebruikersnaam al bestaat in het systeem.
+     * 
+     * @param string $email
+     * @return bool
+     */
+    public function gebruikersnaamBestaat(string $email): bool {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM Gebruiker WHERE Gebruikersnaam = ?");
+        $stmt->execute([$email]);
+        if ((int)$stmt->fetchColumn() > 0) {
+            return true;
+        }
+
+        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM Contact WHERE Email = ?");
+        $stmt2->execute([$email]);
+        if ((int)$stmt2->fetchColumn() > 0) {
+            return true;
+        }
+
+        return false;
+    }
 }
