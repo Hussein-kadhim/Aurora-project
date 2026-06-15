@@ -1,4 +1,7 @@
 <?php
+$search = $search ?? '';
+$accounts = $accounts ?? [];
+$totalCount = $totalCount ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="nl">
