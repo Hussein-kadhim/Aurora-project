@@ -161,6 +161,35 @@ class MedewerkerController {
             if (strlen($opmerking) > 250) {
                 $fouten[] = 'Opmerking mag maximaal 250 tekens bevatten.';
             }
+
+            // Als er geen fouten zijn, opslaan!
+            if (empty($fouten)) {
+                try {
+                    $saved = $this->model->addMedewerker([
+                        'voornaam'        => $voornaam,
+                        'tussenvoegsel'   => $tussenvoegsel,
+                        'achternaam'      => $achternaam,
+                        'email'           => $email,
+                        'mobiel'          => $mobiel,
+                        'medewerkersoort' => $medewerkersoort,
+                        'rol'             => $rol,
+                        'wachtwoord'      => $wachtwoord,
+                        'opmerking'       => $opmerking
+                    ]);
+
+                    if ($saved) {
+                        $_SESSION['success'] = 'Nieuwe medewerker ' . htmlspecialchars($voornaam . ' ' . $achternaam) . ' is succesvol toegevoegd.';
+                        header('Location: index.php');
+                        exit();
+                    } else {
+                        $fouten[] = 'Er is een fout opgetreden bij het opslaan van de medewerker.';
+                    }
+                } catch (PDOException $e) {
+                    $fouten[] = 'De server is momenteel niet bereikbaar. Probeer het later opnieuw.';
+                } catch (Throwable $e) {
+                    $fouten[] = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+                }
+            }
         }
 
         require_once __DIR__ . '/views/create.php';
