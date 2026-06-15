@@ -28,6 +28,16 @@
                 </div>
             </div>
 
+            <?php if (!empty($_SESSION['success'])): ?>
+                <div class="alert alert-success" role="alert">
+                    <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px; flex-shrink: 0;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span><?= htmlspecialchars($_SESSION['success']) ?></span>
+                </div>
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
             <?php if ($dbFout): ?>
                 <!-- Unhappy Scenario: Server niet bereikbaar -->
                 <div class="empty-state-card" role="alert">
@@ -73,6 +83,12 @@
                     <?php if ($totalCount === 0): ?>
                         <h3>Geen medewerkers gevonden</h3>
                         <p>Er staan momenteel helemaal geen medewerkers geregistreerd in het systeem.</p>
+                        <a href="index.php?action=create" class="btn-primary" style="margin-top: 16px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 18px; height: 18px; margin-right: 6px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Nieuwe Medewerker Toevoegen
+                        </a>
                     <?php else: ?>
                         <h3>Geen zoekresultaten</h3>
                         <p>Er zijn geen medewerkers gevonden die overeenkomen met de zoekterm "<strong><?= htmlspecialchars($search) ?></strong>".</p>
@@ -102,7 +118,7 @@
                             <?php endif; ?>
                         </div>
                     </form>
-                    <a href="#" class="btn-primary" onclick="alert('Nieuwe medewerker toevoegen is nog in ontwikkeling.'); return false;">
+                    <a href="index.php?action=create" class="btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 18px; height: 18px; margin-right: 6px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
