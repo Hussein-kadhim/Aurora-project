@@ -694,3 +694,35 @@ tr:hover td {
         display: none;
     }
 }
+
+/* ===================================================
+   Alert Banners (succes & fout)
+   =================================================== */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 28px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.alert-success {
+    background-color: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #065f46;
+}
+
+.alert-danger {
+    background-color: rgba(211, 16, 39, 0.05);
+    border: 1px solid rgba(211, 16, 39, 0.2);
+    color: #7f1d1d;
+}
