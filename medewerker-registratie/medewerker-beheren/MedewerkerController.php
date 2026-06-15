@@ -58,4 +58,37 @@ class MedewerkerController {
         // 4. Laad de view
         require_once __DIR__ . '/views/index.php';
     }
+
+    /**
+     * Actie voor het toevoegen van een nieuwe medewerker.
+     */
+    public function create() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
+            header('Location: ../../login.php');
+            exit();
+        }
+
+        // 2. Beveiliging: Alleen Administrator heeft toegang
+        if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            header('Location: ../../informatie/home.php');
+            exit();
+        }
+
+        $fouten = [];
+        $voornaam = '';
+        $tussenvoegsel = '';
+        $achternaam = '';
+        $email = '';
+        $mobiel = '';
+        $medewerkersoort = 'Beheerder'; // default
+        $rol = 'Medewerker'; // default
+        $opmerking = '';
+
+        require_once __DIR__ . '/views/create.php';
+    }
 }
