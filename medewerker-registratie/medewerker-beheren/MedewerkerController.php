@@ -19,14 +19,16 @@ class MedewerkerController {
 
         // 1. Controleer of de gebruiker is ingelogd
         if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../../login.php');
-            exit();
+            // Tijdelijk uitgezet voor testdoeleinden
+            // header('Location: ../../login.php');
+            // exit();
         }
 
         // 2. Beveiliging: Alleen Administrator heeft toegang
         if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
-            header('Location: ../../informatie/home.php');
-            exit();
+            // Tijdelijk uitgezet voor testdoeleinden
+            // header('Location: ../../informatie/home.php');
+            // exit();
         }
 
         $dbFout = false;

@@ -52,7 +52,7 @@ $totalCount = $totalCount ?? 0;
                     </div>
                 </form>
                 
-                <a href="#" class="btn-primary" onclick="alert('Nieuw account toevoegen is nog in ontwikkeling.'); return false;">
+                <a href="toevoegen.php" class="btn-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 18px; height: 18px; margin-right: 6px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -60,8 +60,33 @@ $totalCount = $totalCount ?? 0;
                 </a>
             </div>
 
+            <?php if (!empty($_GET['success']) && $_GET['success'] == 1): ?>
+                <div id="success-alert" class="alert alert-success" style="background-color: #ECFDF5; color: #065F46; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #10B981; transition: opacity 0.5s ease;">
+                    <strong>Gelukt!</strong> Account succesvol aangemaakt.
+                </div>
+                <script>
+                    setTimeout(function() {
+                        const alertBox = document.getElementById('success-alert');
+                        if (alertBox) {
+                            alertBox.style.opacity = '0';
+                            setTimeout(() => alertBox.style.display = 'none', 500); // Wacht tot fade-out animatie klaar is
+                        }
+                    }, 3000); // 3 seconden zichtbaar
+                </script>
+            <?php endif; ?>
+
             <!-- Unhappy Scenario: Geen accounts in database of geen resultaten -->
-            <?php if (empty($accounts)): ?>
+            <?php if (!empty($foutmelding)): ?>
+                <div class="empty-state-card">
+                    <div class="empty-icon-wrapper" style="background-color: #FEE2E2; color: #B91C1C;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 style="color: #B91C1C;">Systeemfout</h3>
+                    <p><?= htmlspecialchars($foutmelding) ?></p>
+                </div>
+            <?php elseif (empty($accounts)): ?>
                 <div class="empty-state-card">
                     <div class="empty-icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,7 +96,7 @@ $totalCount = $totalCount ?? 0;
                     <?php if ($totalCount === 0): ?>
                         <h3>Geen accounts gevonden</h3>
                         <p>Er staan momenteel helemaal geen accounts geregistreerd in het systeem.</p>
-                        <a href="#" class="btn-primary" style="margin-top: 16px;" onclick="alert('Nieuw account toevoegen is nog in ontwikkeling.'); return false;">
+                        <a href="toevoegen.php" class="btn-primary" style="margin-top: 16px;">
                             Voeg je eerste account toe
                         </a>
                     <?php else: ?>

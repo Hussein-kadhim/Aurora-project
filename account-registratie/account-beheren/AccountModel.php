@@ -34,18 +34,13 @@ class AccountModel {
 
         $query .= " ORDER BY g.Id ASC";
 
-        try {
-            $stmt = $this->pdo->prepare($query);
-            if ($search !== '') {
-                $stmt->execute(['search' => '%' . $search . '%']);
-            } else {
-                $stmt->execute();
-            }
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            // Log fout of retourneer lege array
-            return [];
+        $stmt = $this->pdo->prepare($query);
+        if ($search !== '') {
+            $stmt->execute(['search' => '%' . $search . '%']);
+        } else {
+            $stmt->execute();
         }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -54,11 +49,61 @@ class AccountModel {
      * @return int Aantal accounts
      */
     public function getAccountCount() {
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM Gebruiker");
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Voegt een nieuw account toe in de database (inclusief Rol en Contact gegevens).
+     * 
+     * @param array $data Accountgegevens
+     * @return bool True bij succes, false bij falen
+     */
+    public function createAccount(array $data) {
+        $this->pdo->beginTransaction();
+
         try {
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM Gebruiker");
-            return (int) $stmt->fetchColumn();
+            // 1. Gebruiker toevoegen
+            $stmtGebruiker = $this->pdo->prepare("
+                INSERT INTO Gebruiker (Voornaam, Tussenvoegsel, Achternaam, Gebruikersnaam, Wachtwoord)
+                VALUES (:voornaam, :tussenvoegsel, :achternaam, :gebruikersnaam, :wachtwoord)
+            ");
+            $stmtGebruiker->execute([
+                'voornaam'       => $data['Voornaam'],
+                'tussenvoegsel'  => empty($data['Tussenvoegsel']) ? null : $data['Tussenvoegsel'],
+                'achternaam'     => $data['Achternaam'],
+                'gebruikersnaam' => $data['Gebruikersnaam'],
+                'wachtwoord'     => $data['Wachtwoord']
+            ]);
+
+            $gebruikerId = $this->pdo->lastInsertId();
+
+            // 2. Rol toevoegen
+            $stmtRol = $this->pdo->prepare("
+                INSERT INTO Rol (GebruikerId, Naam)
+                VALUES (:gebruikerId, :naam)
+            ");
+            $stmtRol->execute([
+                'gebruikerId' => $gebruikerId,
+                'naam'        => $data['Rol']
+            ]);
+
+            // 3. Contact toevoegen
+            $stmtContact = $this->pdo->prepare("
+                INSERT INTO Contact (GebruikerId, Email, Mobiel)
+                VALUES (:gebruikerId, :email, :mobiel)
+            ");
+            $stmtContact->execute([
+                'gebruikerId' => $gebruikerId,
+                'email'       => $data['Email'],
+                'mobiel'      => $data['Mobiel']
+            ]);
+
+            $this->pdo->commit();
+            return true;
         } catch (PDOException $e) {
-            return 0;
+            $this->pdo->rollBack();
+            return false;
         }
     }
 }
