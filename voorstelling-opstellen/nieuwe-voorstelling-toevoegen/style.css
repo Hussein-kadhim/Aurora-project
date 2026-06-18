@@ -1,0 +1,479 @@
+/* Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #FFFFFF;
+    color: #131313;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Navigatiebalk ===== */
+.main-header {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E5D3B3;
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #D31027;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+    transition: opacity 0.2s;
+}
+
+.logo a:hover {
+    opacity: 0.85;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-greeting {
+    font-size: 0.9rem;
+    color: #131313;
+    opacity: 0.6;
+}
+
+.logout-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #131313;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #E5D3B3;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.logout-link:hover {
+    color: #D31027;
+    border-color: #D31027;
+}
+
+/* ===== Hoofdinhoud ===== */
+.dashboard-content {
+    flex: 1;
+    padding: 40px 24px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ===== Breadcrumb ===== */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 0.875rem;
+    color: #131313;
+    opacity: 0.5;
+}
+
+.breadcrumb a {
+    color: #131313;
+    text-decoration: none;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.breadcrumb a:hover {
+    color: #D31027;
+    opacity: 1;
+}
+
+.breadcrumb-sep svg {
+    width: 14px;
+    height: 14px;
+}
+
+.breadcrumb span:last-child {
+    color: #131313;
+    font-weight: 500;
+    opacity: 1;
+}
+
+/* ===== Dashboard Kop ===== */
+.dashboard-header-row {
+    margin-bottom: 32px;
+}
+
+.title-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #131313;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #131313;
+    opacity: 0.5;
+    margin-top: 4px;
+}
+
+/* ===== Formulier kaart ===== */
+.form-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(19, 19, 19, 0.03);
+    overflow: hidden;
+    max-width: 800px;
+}
+
+/* ===== Form Secties ===== */
+.form-section {
+    padding: 32px 36px;
+}
+
+.form-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #131313;
+    letter-spacing: -0.2px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(229, 211, 179, 0.5);
+}
+
+.form-divider {
+    height: 1px;
+    background-color: #E5D3B3;
+    opacity: 0.5;
+}
+
+/* ===== Form groepen ===== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #131313;
+}
+
+.required {
+    color: #D31027;
+    margin-left: 2px;
+}
+
+.optional {
+    font-weight: 400;
+    color: #131313;
+    opacity: 0.45;
+    font-size: 0.8rem;
+}
+
+/* ===== Inputs ===== */
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    background-color: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #131313;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: all 0.2s;
+    resize: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #D31027;
+    box-shadow: 0 0 0 3px rgba(211, 16, 39, 0.08);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #131313;
+    opacity: 0.35;
+}
+
+/* Input met icoon */
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    width: 18px;
+    height: 18px;
+    color: #131313;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.input-with-icon input {
+    padding-left: 44px !important;
+}
+
+/* Textarea teken-teller */
+.char-counter {
+    font-size: 0.78rem;
+    color: #131313;
+    opacity: 0.4;
+    text-align: right;
+    margin-top: 2px;
+}
+
+/* ===== Select ===== */
+.select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.select-wrapper select {
+    width: 100%;
+    background-color: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 8px;
+    padding: 12px 44px 12px 16px;
+    color: #131313;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.select-wrapper select:focus {
+    border-color: #D31027;
+    box-shadow: 0 0 0 3px rgba(211, 16, 39, 0.08);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 14px;
+    width: 18px;
+    height: 18px;
+    color: #131313;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+/* ===== Validatie fout ===== */
+.form-group.has-error input,
+.form-group.has-error textarea,
+.form-group.has-error select {
+    border-color: #D31027;
+    box-shadow: 0 0 0 3px rgba(211, 16, 39, 0.06);
+}
+
+.field-error {
+    font-size: 0.82rem;
+    color: #D31027;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ===== Knoppen ===== */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    background-color: #D31027;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+    background-color: #b50e21;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+    background-color: #b50e21;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.8;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    background-color: #FFFFFF;
+    color: #131313;
+    border: 1px solid #E5D3B3;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    border-color: #131313;
+    background-color: rgba(19, 19, 19, 0.02);
+}
+
+/* ===== Form Actieknoppen ===== */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 36px;
+    background-color: rgba(229, 211, 179, 0.05);
+    border-top: 1px solid #E5D3B3;
+}
+
+/* ===== Empty / Succes State ===== */
+.empty-state-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 12px;
+    padding: 64px 32px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(19, 19, 19, 0.03);
+    max-width: 600px;
+    margin: 40px auto 0;
+}
+
+.empty-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    background-color: rgba(229, 211, 179, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #8c7144;
+}
+
+.empty-icon-wrapper svg {
+    width: 32px;
+    height: 32px;
+}
+
+.succes-icon {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+}
+
+.empty-state-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #131313;
+    margin-bottom: 8px;
+}
+
+.empty-state-card p {
+    font-size: 0.95rem;
+    color: #131313;
+    opacity: 0.6;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.succes-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+/* ===== Spin animatie (submit knop) ===== */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .form-section {
+        padding: 24px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        padding: 20px;
+    }
+
+    .form-actions .btn-primary,
+    .form-actions .btn-secondary {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .succes-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .succes-actions a {
+        justify-content: center;
+    }
+}
