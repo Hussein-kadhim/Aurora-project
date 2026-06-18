@@ -132,10 +132,17 @@ class MeldingModel {
      * @return int|null
      */
     public function getMedewerkerIdByGebruikerId($gebruikerId) {
-        $stmt = $this->pdo->prepare("SELECT Id FROM Medewerker WHERE GebruikerId = ? LIMIT 1");
-        $stmt->execute([$gebruikerId]);
-        $id = $stmt->fetchColumn();
-        return $id ? (int) $id : null;
+        try {
+            $stmt = $this->pdo->prepare("SELECT Id FROM Medewerker WHERE GebruikerId = ? LIMIT 1");
+            $stmt->execute([$gebruikerId]);
+            $id = $stmt->fetchColumn();
+            return $id ? (int) $id : null;
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return null;
+        }
     }
 
     /**
@@ -144,9 +151,16 @@ class MeldingModel {
      * @return int
      */
     public function getNextMeldingNummer() {
-        $stmt = $this->pdo->query("SELECT MAX(Nummer) FROM Melding");
-        $max = $stmt->fetchColumn();
-        return $max ? (int) $max + 1 : 90001;
+        try {
+            $stmt = $this->pdo->query("SELECT MAX(Nummer) FROM Melding");
+            $max = $stmt->fetchColumn();
+            return $max ? (int) $max + 1 : 90001;
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return 90001;
+        }
     }
 
     /**
