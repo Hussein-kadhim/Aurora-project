@@ -221,12 +221,12 @@ CREATE TABLE Melding (
   Opmerkingen  : Wachtwoorden zijn bcrypt-gehasht opgeslagen.
 */
 INSERT INTO Gebruiker (Id, Voornaam, Tussenvoegsel, Achternaam, Gebruikersnaam, Wachtwoord, IsIngelogd, Ingelogd, Uitgelogd, IsActief, Opmerking) VALUES
-(1, 'Jan', 'van', 'Dam', 'jan.vandam@aurora.nl', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Hoofdbeheerder systeem'),
-(2, 'Sarah', NULL, 'Koning', 'sarah.koning@aurora.nl', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Ticketcontroleur'),
-(3, 'Mark', 'de', 'Vries', 'mark.devries@aurora.nl', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Evenementen beheerder'),
-(4, 'Lisa', NULL, 'Jansen', 'lisa.jansen@gmail.com', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Reguliere bezoeker'),
-(5, 'Ahmed', NULL, 'El Mansouri', 'ahmed.elmansouri@outlook.com', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Premium bezoeker'),
-(6, 'Emma', 'van der', 'Berg', 'emma.vdberg@hotmail.com', '$2y$10$vI8fW1H8BqBwF9N1gW8yEeJgBvJ.5q2v1.a8zB6p3C1HqW8dK9jWq', b'0', NULL, NULL, b'1', 'Nieuwe bezoeker');
+(1, 'Jan', 'van', 'Dam', 'jan.vandam@aurora.nl', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Hoofdbeheerder systeem'),
+(2, 'Sarah', NULL, 'Koning', 'sarah.koning@aurora.nl', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Ticketcontroleur'),
+(3, 'Mark', 'de', 'Vries', 'mark.devries@aurora.nl', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Evenementen beheerder'),
+(4, 'Lisa', NULL, 'Jansen', 'lisa.jansen@gmail.com', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Reguliere bezoeker'),
+(5, 'Ahmed', NULL, 'El Mansouri', 'ahmed.elmansouri@outlook.com', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Premium bezoeker'),
+(6, 'Emma', 'van der', 'Berg', 'emma.vdberg@hotmail.com', '$2y$10$3e5z.r1uuAYhlzTPph1xw.qwajnaE3NxbzpyzyyBJWYLx4F3iRwEG', b'0', NULL, NULL, b'1', 'Nieuwe bezoeker');
 
 /*
   Auteur       : KadhimH
@@ -302,9 +302,12 @@ INSERT INTO Prijs (Id, Tarief, IsActief, Opmerking) VALUES
   Opmerkingen  : Voorstellingen worden aangemaakt door medewerker met Id 3 (Planner).
 */
 INSERT INTO Voorstelling (Id, MedewerkerId, Naam, Beschrijving, Datum, Tijd, MaxAantalTickets, Beschikbaarheid, IsActief, Opmerking) VALUES
-(1, 3, 'The Sound of Music', 'Klassieke familiemusical met bekende liedjes.', '2026-06-15', '20:00:00', 150, 'Ingepland', b'1', 'Avondvoorstelling'),
+(1, 3, 'The Sound of Music', 'Klassieke familiemusical met bekende liedjes.', '2026-06-28', '20:00:00', 150, 'Ingepland', b'1', 'Avondvoorstelling'),
 (2, 3, 'Cinderella (Ballet)', 'Een prachtig balletstuk uitgevoerd door het Nationaal Ballet.', '2026-07-20', '19:30:00', 200, 'Ingepland', b'1', 'Topvoorstelling'),
-(3, 3, 'Romeo en Julia', 'Het bekende toneelstuk van Shakespeare in een moderne jas.', '2026-08-05', '14:30:00', 100, 'Geannuleerd', b'1', 'Middagvoorstelling geannuleerd');
+(3, 3, 'Romeo en Julia', 'Het bekende toneelstuk van Shakespeare in een moderne jas.', '2026-08-05', '14:30:00', 100, 'Geannuleerd', b'1', 'Middagvoorstelling geannuleerd'),
+(4, 3, 'The Lion King', 'Prachtige musical met indrukwekkende kostuums en bekende muziek.', '2026-07-02', '19:30:00', 120, 'Ingepland', b'1', 'Populair theater'),
+(5, 3, 'Hamilton', 'De bekende musical over het leven van Alexander Hamilton.', '2026-07-15', '20:00:00', 150, 'Ingepland', b'1', 'Broadway hit'),
+(6, 3, 'Mamma Mia!', 'Gezellige feel-good musical met alle grote hits van ABBA.', '2026-08-12', '14:00:00', 180, 'Ingepland', b'1', 'Middagvoorstelling');
 
 /*
   Auteur       : KadhimH

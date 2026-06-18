@@ -1,4 +1,7 @@
 <?php
+$search = isset($search) ? $search : '';
+$totalCount = isset($totalCount) ? $totalCount : 0;
+$tickets = isset($tickets) ? $tickets : [];
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -9,6 +12,7 @@
     <title>Ticketoverzicht — Aurora</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
 
@@ -31,10 +35,8 @@
             <div class="controls-row">
                 <form method="get" action="" class="search-form" id="searchForm">
                     <div class="search-input-wrapper">
-                        <!-- Magnifying glass SVG icon -->
-                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        <!-- Magnifying glass FontAwesome icon -->
+                        <i class="fa-solid fa-magnifying-glass search-icon" style="line-height: 20px; font-size: 16px;"></i>
                         <input 
                             type="text" 
                             id="searchInput"
@@ -51,17 +53,15 @@
                 
                 <div class="right-actions">
                     <button class="btn-filter" onclick="alert('Filteren is nog in ontwikkeling.'); return false;">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                        </svg>
+                        <i class="fa-solid fa-filter"></i>
                         <span>Filters</span>
                     </button>
                     
-                    <a href="scan.php" class="btn-primary" style="background-color: #131313; border-color: #131313; margin-right: 8px;">
+                    <a href="scan.php" class="btn-primary">
                         Scan Ticket
                     </a>
                     
-                    <a href="#" class="btn-primary" onclick="alert('Nieuw ticket toevoegen is nog in ontwikkeling.'); return false;">
+                    <a href="reserveren.php" class="btn-primary">
                         + Nieuw Ticket
                     </a>
                 </div>
@@ -71,10 +71,8 @@
             <?php if (empty($tickets)): ?>
                 <div class="empty-state-card">
                     <div class="empty-icon-wrapper">
-                        <!-- Ticket SVG icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                        </svg>
+                        <!-- Ticket FontAwesome icon -->
+                        <i class="fa-solid fa-ticket" style="font-size: 28px;"></i>
                     </div>
                     <?php if ($totalCount === 0): ?>
                         <h3>Geen tickets gevonden</h3>
@@ -183,10 +181,8 @@
                                         <?= htmlspecialchars(trim($row['BezoekerVoornaam'] . ' ' . ($row['BezoekerTussenvoegsel'] ?? '') . ' ' . $row['BezoekerAchternaam'])) ?>
                                     </span>
                                 </div>
-                                <div class="chevron-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
+                                <div class="chevron-wrapper" style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
+                                    <i class="fa-solid fa-chevron-right" style="font-size: 16px; color: #131313; opacity: 0.6;"></i>
                                 </div>
                             </div>
                         </div>
@@ -221,9 +217,7 @@
             instantEmptyState.style.marginTop = "40px";
             instantEmptyState.innerHTML = `
                 <div class="empty-icon-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
+                    <i class="fa-solid fa-ticket" style="font-size: 28px;"></i>
                 </div>
                 <h3>Geen tickets gevonden</h3>
                 <p>Er zijn geen tickets gevonden die overeenkomen met je zoekopdracht.</p>

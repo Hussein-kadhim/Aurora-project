@@ -243,7 +243,7 @@ $isIngelogd = !empty($_SESSION['ingelogd']);
                     <a class="nav-link" href="<?= $root_path ?>medewerker-registratie/medewerker-beheren/index.php">Medewerker beheren</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= $root_path ?>melding/melding-beheren/index.php" onclick="alert('Melding beheren is nog in ontwikkeling.'); return false;">Melding beheren</a>
+                    <a class="nav-link" href="<?= $root_path ?>melding/meldingen.php">Melding beheren</a>
                 </li>
             <?php endif; ?>
             <?php if ($isStaff): ?>

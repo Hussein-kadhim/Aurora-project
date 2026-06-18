@@ -14,15 +14,10 @@ class VoorstellingController {
             session_start();
         }
 
-        // 1. Controleer of de gebruiker is ingelogd
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../../login.php');
-            exit();
-        }
-
-        // 2. Beveiliging
-        if (empty($_SESSION['rol']) || $_SESSION['rol'] === 'Bezoeker') {
-            header('Location: ../../informatie/home.php');
+        // 1. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
+        $rol = $_SESSION['rol'] ?? '';
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
             exit();
         }
 

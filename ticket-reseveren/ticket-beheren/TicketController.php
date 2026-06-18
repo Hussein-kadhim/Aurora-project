@@ -18,14 +18,10 @@ class TicketController {
             session_start();
         }
 
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../../login.php');
-            exit();
-        }
-
-        // 2. Beveiliging: Medewerker en Administrator hebben toegang
-        if (empty($_SESSION['rol']) || ($_SESSION['rol'] !== 'Administrator' && $_SESSION['rol'] !== 'Medewerker')) {
-            header('Location: ../../informatie/home.php');
+        // 1. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
+        $rol = $_SESSION['rol'] ?? '';
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
             exit();
         }
 
@@ -58,14 +54,10 @@ class TicketController {
             session_start();
         }
 
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../../login.php');
-            exit();
-        }
-
-        // 2. Beveiliging: Medewerker en Administrator hebben toegang
-        if (empty($_SESSION['rol']) || ($_SESSION['rol'] !== 'Administrator' && $_SESSION['rol'] !== 'Medewerker')) {
-            header('Location: ../../informatie/home.php');
+        // 1. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
+        $rol = $_SESSION['rol'] ?? '';
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
             exit();
         }
 
@@ -113,6 +105,78 @@ class TicketController {
 
         // Laad de view
         require_once __DIR__ . '/views/scan.php';
+    }
+
+    /**
+     * Ticket reserveren pagina.
+     */
+    public function reserve() {
+        // 1. Controleer of de gebruiker is ingelogd
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        $gebruikerId = (int) $_SESSION['gebruiker_id'];
+        $voorstellingen = [];
+        $errorMessage = '';
+        $success = false;
+        $reservedTickets = [];
+        $gekozenVoorstelling = null;
+
+        try {
+            // Haal actieve voorstellingen op voor de dropdown
+            $voorstellingen = $this->model->getActiveVoorstellingen();
+        } catch (PDOException $e) {
+            $errorMessage = 'Er is een databasefout opgetreden bij het laden van de voorstellingen.';
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $voorstellingId = (int) ($_POST['voorstelling_id'] ?? 0);
+            $aantal = (int) ($_POST['aantal'] ?? 0);
+
+            if ($voorstellingId <= 0) {
+                $errorMessage = 'Selecteer een geldige voorstelling.';
+            } elseif ($aantal <= 0 || $aantal > 10) {
+                $errorMessage = 'Kies een aantal tickets tussen 1 en 10.';
+            } else {
+                try {
+                    // Check beschikbare tickets
+                    $available = $this->model->getAvailableTicketsForVoorstelling($voorstellingId);
+
+                    if ($aantal > $available) {
+                        // Unhappy scenario: Niet genoeg tickets beschikbaar
+                        $errorMessage = 'Niet genoeg tickets beschikbaar';
+                    } else {
+                        // Happy scenario: Reserveer tickets
+                        $reservedTickets = $this->model->reserveTickets($gebruikerId, $voorstellingId, $aantal);
+                        if ($reservedTickets === false) {
+                            $errorMessage = 'Niet genoeg tickets beschikbaar';
+                        } else {
+                            $success = true;
+
+                            // Haal details op van de gekozen voorstelling voor de bevestigingspagina
+                            // We halen alle actieve voorstellingen op en zoeken de juiste op basis van Id
+                            foreach ($voorstellingen as $vs) {
+                                if ((int)$vs['Id'] === $voorstellingId) {
+                                    $gekozenVoorstelling = $vs;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch (PDOException $e) {
+                    $errorMessage = 'Er is een databasefout opgetreden bij het reserveren van de tickets.';
+                }
+            }
+        }
+
+        // Laad de view
+        require_once __DIR__ . '/views/reserveren.php';
     }
 }
 
