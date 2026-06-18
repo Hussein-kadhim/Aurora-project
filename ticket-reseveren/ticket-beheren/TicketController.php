@@ -19,14 +19,16 @@ class TicketController {
         }
 
         if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../../login.php');
-            exit();
+            // Tijdelijk uitgezet
+            // header('Location: ../../login.php');
+            // exit();
         }
 
         // 2. Beveiliging: Medewerker en Administrator hebben toegang
         if (empty($_SESSION['rol']) || ($_SESSION['rol'] !== 'Administrator' && $_SESSION['rol'] !== 'Medewerker')) {
-            header('Location: ../../informatie/home.php');
-            exit();
+            // Tijdelijk uitgezet
+            // header('Location: ../../informatie/home.php');
+            // exit();
         }
 
         // 3. Haal zoekopdracht op
@@ -59,14 +61,16 @@ class TicketController {
         }
 
         if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../../login.php');
-            exit();
+            // Tijdelijk uitgezet
+            // header('Location: ../../login.php');
+            // exit();
         }
 
         // 2. Beveiliging: Medewerker en Administrator hebben toegang
         if (empty($_SESSION['rol']) || ($_SESSION['rol'] !== 'Administrator' && $_SESSION['rol'] !== 'Medewerker')) {
-            header('Location: ../../informatie/home.php');
-            exit();
+            // Tijdelijk uitgezet
+            // header('Location: ../../informatie/home.php');
+            // exit();
         }
 
         $ticket = null;
