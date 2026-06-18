@@ -62,7 +62,7 @@
                             <?php endif; ?>
                         </div>
                     </form>
-                    <a href="create.php" class="btn-primary">
+                    <a href="../nieuwe-voorstelling-toevoegen/index.php" class="btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -109,7 +109,7 @@
                             <?php endif; ?>
                         </div>
                     </form>
-                    <a href="create.php" class="btn-primary">
+                    <a href="../nieuwe-voorstelling-toevoegen/index.php" class="btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
