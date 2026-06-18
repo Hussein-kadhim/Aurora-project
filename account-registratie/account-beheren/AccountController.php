@@ -18,13 +18,10 @@ class AccountController {
             session_start();
         }
 
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            // Tijdelijk uitgezet
-        }
-
-        // 2. Beveiliging: Alleen Administrator heeft toegang
-        if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
-            // Tijdelijk uitgezet
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
         }
 
         // 3. Haal zoekopdracht op
@@ -46,11 +43,10 @@ class AccountController {
             session_start();
         }
 
-        // Redirects uitgezet voor testdoeleinden
-        // if (empty($_SESSION['ingelogd']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
-        //     header('Location: ../../informatie/home.php');
-        //     exit();
-        // }
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
 
         $error = '';
 

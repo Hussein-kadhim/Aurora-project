@@ -18,17 +18,11 @@ class TicketController {
             session_start();
         }
 
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            // Tijdelijk uitgezet
-            // header('Location: ../../login.php');
-            // exit();
-        }
-
-        // 2. Beveiliging: Medewerker en Administrator hebben toegang
-        if (empty($_SESSION['rol']) || ($_SESSION['rol'] !== 'Administrator' && $_SESSION['rol'] !== 'Medewerker')) {
-            // Tijdelijk uitgezet
-            // header('Location: ../../informatie/home.php');
-            // exit();
+        // 1. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
+        $rol = $_SESSION['rol'] ?? '';
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
         }
 
         // 3. Haal zoekopdracht op
@@ -60,17 +54,11 @@ class TicketController {
             session_start();
         }
 
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            // Tijdelijk uitgezet
-            // header('Location: ../../login.php');
-            // exit();
-        }
-
-        // 2. Beveiliging: Medewerker en Administrator hebben toegang
-        if (empty($_SESSION['rol']) || ($_SESSION['rol'] !== 'Administrator' && $_SESSION['rol'] !== 'Medewerker')) {
-            // Tijdelijk uitgezet
-            // header('Location: ../../informatie/home.php');
-            // exit();
+        // 1. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
+        $rol = $_SESSION['rol'] ?? '';
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
         }
 
         $ticket = null;
@@ -129,7 +117,7 @@ class TicketController {
         }
 
         if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../../login.php');
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
             exit();
         }
 

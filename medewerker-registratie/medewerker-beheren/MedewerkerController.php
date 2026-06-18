@@ -17,18 +17,10 @@ class MedewerkerController {
             session_start();
         }
 
-        // 1. Controleer of de gebruiker is ingelogd
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            // Tijdelijk uitgezet voor testdoeleinden
-            // header('Location: ../../login.php');
-            // exit();
-        }
-
-        // 2. Beveiliging: Alleen Administrator heeft toegang
-        if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
-            // Tijdelijk uitgezet voor testdoeleinden
-            // header('Location: ../../informatie/home.php');
-            // exit();
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
         }
 
         $dbFout = false;
@@ -69,18 +61,10 @@ class MedewerkerController {
             session_start();
         }
 
-        // 1. Controleer of de gebruiker is ingelogd
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            // Tijdelijk uitgezet voor testdoeleinden
-            // header('Location: ../../login.php');
-            // exit();
-        }
-
-        // 2. Beveiliging: Alleen Administrator heeft toegang
-        if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
-            // Tijdelijk uitgezet voor testdoeleinden
-            // header('Location: ../../informatie/home.php');
-            // exit();
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
         }
 
         $fouten = [];

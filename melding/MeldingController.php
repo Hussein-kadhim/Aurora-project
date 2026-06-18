@@ -19,16 +19,10 @@ class MeldingController {
             session_start();
         }
 
-        // 2. Controleer of de gebruiker is ingelogd
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../login.php');
-            exit();
-        }
-
-        // 3. Beveiliging: Alleen Medewerker en Administrator hebben toegang
+        // 2. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
         $rol = $_SESSION['rol'] ?? '';
-        if ($rol !== 'Administrator' && $rol !== 'Medewerker') {
-            header('Location: ../informatie/home.php');
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../includes/geen_toegang.php';
             exit();
         }
 
@@ -176,16 +170,10 @@ class MeldingController {
             session_start();
         }
 
-        // 2. Controleer of de gebruiker is ingelogd
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Location: ../login.php');
-            exit();
-        }
-
-        // 3. Beveiliging: Alleen Medewerker en Administrator hebben toegang
+        // 2. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
         $rol = $_SESSION['rol'] ?? '';
-        if ($rol !== 'Administrator' && $rol !== 'Medewerker') {
-            header('Location: ../informatie/home.php');
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../includes/geen_toegang.php';
             exit();
         }
 
