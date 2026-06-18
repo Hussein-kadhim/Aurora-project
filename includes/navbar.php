@@ -234,24 +234,31 @@ $isIngelogd = !empty($_SESSION['ingelogd']);
             <li class="nav-item">
                 <a class="nav-link" href="<?= $root_path ?>informatie/home.php">Home</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= $root_path ?>account-registratie/account-beheren/index.php">Account beheren</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= $root_path ?>medewerker-registratie/medewerker-beheren/index.php">Medewerker beheren</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= $root_path ?>voorstelling-opstellen/voorstelling-beheren/index.php">Voorstelling beheren</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= $root_path ?>melding-beheren/meldingen.php">Melding beheren</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/index.php">Ticket beheren</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/scan.php">Ticket scannen</a>
-            </li>
+            
+            <?php if ($isAdmin): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>account-registratie/account-beheren/index.php">Account beheren</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>medewerker-registratie/medewerker-beheren/index.php">Medewerker beheren</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>melding/meldingen.php">Melding beheren</a>
+                </li>
+            <?php endif; ?>
+            <?php if ($isStaff): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/index.php">Ticket beheren</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>ticket-reseveren/ticket-beheren/scan.php">Ticket scannen</a>
+                </li>
+            <?php endif; ?>
+            <?php if ($isAdmin): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $root_path ?>voorstelling-opstellen/voorstelling-beheren/index.php">Voorstelling beheren</a>
+                </li>
+            <?php endif; ?>
         </ul>
 
         <div class="nav-user-area">
