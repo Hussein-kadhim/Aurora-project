@@ -81,4 +81,100 @@ class MedewerkerModel {
             return 0;
         }
     }
+
+    /**
+     * Controleert of een e-mailadres / gebruikersnaam al bestaat in het systeem.
+     * 
+     * @param string $email
+     * @return bool
+     */
+    public function gebruikersnaamBestaat(string $email): bool {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM Gebruiker WHERE Gebruikersnaam = ?");
+        $stmt->execute([$email]);
+        if ((int)$stmt->fetchColumn() > 0) {
+            return true;
+        }
+
+        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM Contact WHERE Email = ?");
+        $stmt2->execute([$email]);
+        if ((int)$stmt2->fetchColumn() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Voegt een nieuwe medewerker toe onder een database-transactie.
+     * 
+     * @param array $data De formulierdata van de nieuwe medewerker
+     * @return bool True bij succes, anders false of werpt uitzondering
+     */
+    public function addMedewerker(array $data): bool {
+        $this->pdo->beginTransaction();
+        try {
+            // 1. Verkrijg het volgende medewerkersnummer
+            $stmtNum = $this->pdo->query("SELECT MAX(Nummer) FROM Medewerker");
+            $maxNum = $stmtNum->fetchColumn();
+            $nextNum = $maxNum ? (int)$maxNum + 1 : 10001;
+
+            // 2. Wachtwoord hashen
+            $wachtwoordHash = password_hash($data['wachtwoord'], PASSWORD_DEFAULT);
+
+            // 3. Voeg Gebruiker toe
+            $stmtGebruiker = $this->pdo->prepare("
+                INSERT INTO Gebruiker (Voornaam, Tussenvoegsel, Achternaam, Gebruikersnaam, Wachtwoord, IsIngelogd, IsActief, Opmerking)
+                VALUES (:voornaam, :tussenvoegsel, :achternaam, :gebruikersnaam, :wachtwoord, 0, 1, :opmerking)
+            ");
+            $stmtGebruiker->execute([
+                'voornaam'       => $data['voornaam'],
+                'tussenvoegsel'  => !empty($data['tussenvoegsel']) ? $data['tussenvoegsel'] : null,
+                'achternaam'     => $data['achternaam'],
+                'gebruikersnaam' => $data['email'], // Gebruikersnaam is gelijk aan e-mail
+                'wachtwoord'     => $wachtwoordHash,
+                'opmerking'      => !empty($data['opmerking']) ? $data['opmerking'] : null
+            ]);
+            $gebruikerId = (int) $this->pdo->lastInsertId();
+
+            // 4. Voeg Contactgegevens toe
+            $stmtContact = $this->pdo->prepare("
+                INSERT INTO Contact (GebruikerId, Email, Mobiel, IsActief, Opmerking)
+                VALUES (:gebruiker_id, :email, :mobiel, 1, NULL)
+            ");
+            $stmtContact->execute([
+                'gebruiker_id' => $gebruikerId,
+                'email'        => $data['email'],
+                'mobiel'       => $data['mobiel']
+            ]);
+
+            // 5. Voeg Rol toe
+            $stmtRol = $this->pdo->prepare("
+                INSERT INTO Rol (GebruikerId, Naam, IsActief, Opmerking)
+                VALUES (:gebruiker_id, :rol, 1, NULL)
+            ");
+            $stmtRol->execute([
+                'gebruiker_id' => $gebruikerId,
+                'rol'          => $data['rol'] // 'Medewerker' of 'Administrator'
+            ]);
+
+            // 6. Voeg Medewerker toe
+            $stmtMedewerker = $this->pdo->prepare("
+                INSERT INTO Medewerker (GebruikerId, Nummer, Medewerkersoort, IsActief, Opmerking)
+                VALUES (:gebruiker_id, :nummer, :medewerkersoort, 1, :opmerking)
+            ");
+            $stmtMedewerker->execute([
+                'gebruiker_id'     => $gebruikerId,
+                'nummer'           => $nextNum,
+                'medewerkersoort'  => $data['medewerkersoort'],
+                'opmerking'        => !empty($data['opmerking']) ? $data['opmerking'] : null
+            ]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
 }
+
