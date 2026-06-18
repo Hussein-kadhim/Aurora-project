@@ -103,7 +103,28 @@ class AccountModel {
             return true;
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            return false;
+            throw $e;
         }
+    }
+
+    /**
+     * Controleert of een e-mailadres of gebruikersnaam al bestaat.
+     * 
+     * @param string $email
+     * @param string $gebruikersnaam
+     * @return bool
+     */
+    public function emailOfGebruikersnaamBestaat($email, $gebruikersnaam) {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) 
+            FROM Gebruiker g
+            LEFT JOIN Contact c ON g.Id = c.GebruikerId
+            WHERE g.Gebruikersnaam = :gebruikersnaam OR c.Email = :email
+        ");
+        $stmt->execute([
+            'gebruikersnaam' => $gebruikersnaam,
+            'email'          => $email
+        ]);
+        return $stmt->fetchColumn() > 0;
     }
 }

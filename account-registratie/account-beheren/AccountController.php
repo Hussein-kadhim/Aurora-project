@@ -66,7 +66,9 @@ class AccountController {
 
             // 1. Validatie: Check verplichte velden
             if (empty($voornaam) || empty($achternaam) || empty($gebruikersnaam) || empty($email) || empty($mobiel) || empty($rol) || empty($wachtwoord)) {
-                $error = 'Vul aub alle verplichte velden in.';
+                $error = 'Vul alle verplichte velden in.';
+            } elseif ($this->model->emailOfGebruikersnaamBestaat($email, $gebruikersnaam)) {
+                $error = 'Dit e-mailadres of deze gebruikersnaam is al in gebruik.';
             } else {
                 // 2. Wachtwoord hashen
                 $gehashtWachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
@@ -82,14 +84,22 @@ class AccountController {
                     'Wachtwoord'     => $gehashtWachtwoord
                 ];
 
-                // 3. Opslaan via Model (Transactie)
-                $success = $this->model->createAccount($data);
+                try {
+                    // 3. Opslaan via Model (Transactie)
+                    $success = $this->model->createAccount($data);
 
-                if ($success) {
-                    header('Location: index.php?success=1');
-                    exit();
-                } else {
-                    $error = 'Systeemfout: Account kon niet worden opgeslagen. Probeer het later opnieuw.';
+                    if ($success) {
+                        header('Location: index.php?success=1');
+                        exit();
+                    } else {
+                        $error = 'Er is een fout opgetreden bij het opslaan van het account. Probeer het later nog eens.';
+                    }
+                } catch (PDOException $e) {
+                    if ($e->getCode() == 23000 || strpos($e->getMessage(), '1062') !== false) {
+                        $error = 'Dit e-mailadres of deze gebruikersnaam is al in gebruik.';
+                    } else {
+                        $error = 'Er is een fout opgetreden bij het opslaan van het account. Probeer het later nog eens.';
+                    }
                 }
             }
         }
