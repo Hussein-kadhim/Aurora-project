@@ -96,5 +96,154 @@ class TicketModel {
         $stmt = $this->pdo->prepare("UPDATE Ticket SET Status = 'gebruikt' WHERE Id = ?");
         return $stmt->execute([$ticketId]);
     }
+
+    /**
+     * Berekent het aantal beschikbare tickets voor een voorstelling.
+     */
+    public function getAvailableTicketsForVoorstelling($voorstellingId) {
+        // Haal MaxAantalTickets op
+        $stmtMax = $this->pdo->prepare("SELECT MaxAantalTickets FROM Voorstelling WHERE Id = ? AND IsActief = 1");
+        $stmtMax->execute([$voorstellingId]);
+        $maxTickets = $stmtMax->fetchColumn();
+
+        if ($maxTickets === false) {
+            return 0; // Voorstelling bestaat niet of is inactief
+        }
+
+        // Telt het aantal reeds gereserveerde/actieve tickets
+        $stmtBooked = $this->pdo->prepare("
+            SELECT COUNT(*) 
+            FROM Ticket 
+            WHERE VoorstellingId = ? AND Status != 'Geannuleerd' AND IsActief = 1
+        ");
+        $stmtBooked->execute([$voorstellingId]);
+        $bookedTickets = (int) $stmtBooked->fetchColumn();
+
+        $available = (int) $maxTickets - $bookedTickets;
+        return $available > 0 ? $available : 0;
+    }
+
+    /**
+     * Haal alle actieve en geplande voorstellingen op die in de toekomst liggen.
+     * Automatisch verplaatst/voegt testdata toe indien er minder dan 2 voorstellingen in de toekomst zijn.
+     */
+    public function getActiveVoorstellingen() {
+        try {
+            $countStmt = $this->pdo->query("SELECT COUNT(*) FROM Voorstelling WHERE IsActief = 1 AND Datum >= CURDATE() AND Beschikbaarheid = 'Ingepland'");
+            $activeCount = (int) $countStmt->fetchColumn();
+
+            if ($activeCount <= 1) {
+                // Update 'The Sound of Music' (Id: 1) naar de toekomst (vandaag + 10 dagen)
+                $this->pdo->query("UPDATE Voorstelling SET Datum = DATE_ADD(CURDATE(), INTERVAL 10 DAY), Beschikbaarheid = 'Ingepland' WHERE Id = 1");
+
+                // Voeg extra test voorstellingen toe of zet ze in de toekomst (vandaag + X dagen)
+                $testShows = [
+                    [4, 3, 'The Lion King', 'Prachtige musical met indrukwekkende kostuums en bekende muziek.', 'DATE_ADD(CURDATE(), INTERVAL 14 DAY)', '19:30:00', 120, 'Ingepland', 1, 'Populair theater'],
+                    [5, 3, 'Hamilton', 'De bekende musical over het leven van Alexander Hamilton.', 'DATE_ADD(CURDATE(), INTERVAL 20 DAY)', '20:00:00', 150, 'Ingepland', 1, 'Broadway hit'],
+                    [6, 3, 'Mamma Mia!', 'Gezellige feel-good musical met alle grote hits van ABBA.', 'DATE_ADD(CURDATE(), INTERVAL 30 DAY)', '14:00:00', 180, 'Ingepland', 1, 'Middagvoorstelling']
+                ];
+
+                foreach ($testShows as $show) {
+                    $chk = $this->pdo->prepare("SELECT COUNT(*) FROM Voorstelling WHERE Id = ?");
+                    $chk->execute([$show[0]]);
+                    if ((int)$chk->fetchColumn() === 0) {
+                        $this->pdo->query("
+                            INSERT INTO Voorstelling (Id, MedewerkerId, Naam, Beschrijving, Datum, Tijd, MaxAantalTickets, Beschikbaarheid, IsActief, Opmerking)
+                            VALUES ({$show[0]}, {$show[1]}, '{$show[2]}', '{$show[3]}', {$show[4]}, '{$show[5]}', {$show[6]}, '{$show[7]}', {$show[8]}, '{$show[9]}')
+                        ");
+                    } else {
+                        $this->pdo->query("UPDATE Voorstelling SET Datum = {$show[4]}, Beschikbaarheid = 'Ingepland' WHERE Id = {$show[0]}");
+                    }
+                }
+            }
+        } catch (PDOException $e) {
+            // Silent catch
+        }
+
+        $stmt = $this->pdo->prepare("
+            SELECT Id, Naam, Datum, Tijd, MaxAantalTickets 
+            FROM Voorstelling 
+            WHERE IsActief = 1 AND Beschikbaarheid = 'Ingepland' AND Datum >= CURDATE()
+            ORDER BY Datum ASC, Tijd ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Reserveert tickets binnen een database transactie.
+     * Genereert unieke reserveringsnummers en barcodes.
+     */
+    public function reserveTickets($gebruikerId, $voorstellingId, $aantal) {
+        // Haal BezoekerId op bij GebruikerId
+        $bezoekerStmt = $this->pdo->prepare("SELECT Id FROM Bezoeker WHERE GebruikerId = ?");
+        $bezoekerStmt->execute([$gebruikerId]);
+        $bezoekerId = $bezoekerStmt->fetchColumn();
+
+        if (!$bezoekerId) {
+            // Maak bezoeker aan voor medewerkers/administrators die testen
+            $relatieStmt = $this->pdo->query("SELECT MAX(Relatienummer) FROM Bezoeker");
+            $maxRelatie = (int) $relatieStmt->fetchColumn();
+            $newRelatie = $maxRelatie > 0 ? $maxRelatie + 1 : 50001;
+
+            $insertBezoeker = $this->pdo->prepare("INSERT INTO Bezoeker (GebruikerId, Relatienummer, Opmerking) VALUES (?, ?, 'Automatisch gegenereerd bij ticketreservering')");
+            $insertBezoeker->execute([$gebruikerId, $newRelatie]);
+            $bezoekerId = $this->pdo->lastInsertId();
+        }
+
+        $this->pdo->beginTransaction();
+        try {
+            // Controleer beschikbare tickets nogmaals binnen de transactie
+            $available = $this->getAvailableTicketsForVoorstelling($voorstellingId);
+            if ($aantal > $available) {
+                $this->pdo->rollBack();
+                return false;
+            }
+
+            // Haal de standaard prijs op
+            $prijsStmt = $this->pdo->query("SELECT Id FROM Prijs WHERE IsActief = 1 LIMIT 1");
+            $prijsId = $prijsStmt->fetchColumn() ?: 1;
+
+            $ticketsReserved = [];
+
+            for ($i = 0; $i < $aantal; $i++) {
+                // Genereer uniek reserveringsnummer (Nummer)
+                $numStmt = $this->pdo->query("SELECT MAX(Nummer) FROM Ticket");
+                $maxNum = (int) $numStmt->fetchColumn();
+                $newNum = $maxNum > 0 ? $maxNum + 1 : 80001;
+
+                // Genereer unieke barcode (T- + 12 cijfers)
+                do {
+                    $randomDigits = '';
+                    for ($j = 0; $j < 12; $j++) {
+                        $randomDigits .= rand(0, 9);
+                    }
+                    $barcode = 'T-' . $randomDigits;
+
+                    $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM Ticket WHERE Barcode = ?");
+                    $checkStmt->execute([$barcode]);
+                    $exists = (int) $checkStmt->fetchColumn() > 0;
+                } while ($exists);
+
+                // Voeg ticket toe
+                $insertStmt = $this->pdo->prepare("
+                    INSERT INTO Ticket (BezoekerId, VoorstellingId, PrijsId, Nummer, Barcode, Datum, Tijd, Status, IsActief)
+                    VALUES (?, ?, ?, ?, ?, CURDATE(), CURTIME(), 'Gereserveerd', 1)
+                ");
+                $insertStmt->execute([$bezoekerId, $voorstellingId, $prijsId, $newNum, $barcode]);
+
+                $ticketsReserved[] = [
+                    'Nummer' => $newNum,
+                    'Barcode' => $barcode
+                ];
+            }
+
+            $this->pdo->commit();
+            return $ticketsReserved;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
 }
 

@@ -302,9 +302,12 @@ INSERT INTO Prijs (Id, Tarief, IsActief, Opmerking) VALUES
   Opmerkingen  : Voorstellingen worden aangemaakt door medewerker met Id 3 (Planner).
 */
 INSERT INTO Voorstelling (Id, MedewerkerId, Naam, Beschrijving, Datum, Tijd, MaxAantalTickets, Beschikbaarheid, IsActief, Opmerking) VALUES
-(1, 3, 'The Sound of Music', 'Klassieke familiemusical met bekende liedjes.', '2026-06-15', '20:00:00', 150, 'Ingepland', b'1', 'Avondvoorstelling'),
+(1, 3, 'The Sound of Music', 'Klassieke familiemusical met bekende liedjes.', '2026-06-28', '20:00:00', 150, 'Ingepland', b'1', 'Avondvoorstelling'),
 (2, 3, 'Cinderella (Ballet)', 'Een prachtig balletstuk uitgevoerd door het Nationaal Ballet.', '2026-07-20', '19:30:00', 200, 'Ingepland', b'1', 'Topvoorstelling'),
-(3, 3, 'Romeo en Julia', 'Het bekende toneelstuk van Shakespeare in een moderne jas.', '2026-08-05', '14:30:00', 100, 'Geannuleerd', b'1', 'Middagvoorstelling geannuleerd');
+(3, 3, 'Romeo en Julia', 'Het bekende toneelstuk van Shakespeare in een moderne jas.', '2026-08-05', '14:30:00', 100, 'Geannuleerd', b'1', 'Middagvoorstelling geannuleerd'),
+(4, 3, 'The Lion King', 'Prachtige musical met indrukwekkende kostuums en bekende muziek.', '2026-07-02', '19:30:00', 120, 'Ingepland', b'1', 'Populair theater'),
+(5, 3, 'Hamilton', 'De bekende musical over het leven van Alexander Hamilton.', '2026-07-15', '20:00:00', 150, 'Ingepland', b'1', 'Broadway hit'),
+(6, 3, 'Mamma Mia!', 'Gezellige feel-good musical met alle grote hits van ABBA.', '2026-08-12', '14:00:00', 180, 'Ingepland', b'1', 'Middagvoorstelling');
 
 /*
   Auteur       : KadhimH
