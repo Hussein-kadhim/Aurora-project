@@ -1,4 +1,9 @@
 <?php
+// Initialiseer variabelen voor statische analyse/linter
+$ticket = isset($ticket) ? $ticket : null;
+$success = isset($success) ? $success : null;
+$errorMessage = isset($errorMessage) ? $errorMessage : '';
+
 // Mappen van de ticket type/prijs categorie
 $ticketType = 'Regulier Ticket';
 if ($ticket !== null && !empty($ticket['PrijsOpmerking'])) {
@@ -19,6 +24,7 @@ if ($ticket !== null && !empty($ticket['PrijsOpmerking'])) {
     <title>Ticket Scannen — Aurora</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         .scan-card {
             background-color: #FFFFFF;
@@ -257,9 +263,7 @@ if ($ticket !== null && !empty($ticket['PrijsOpmerking'])) {
                 <div class="scan-card">
                     <div class="icon-circle success">
                         <!-- Checkmark Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
+                        <i class="fa-solid fa-check" style="font-size: 2.2rem;"></i>
                     </div>
 
                     <h1 class="scan-title">Ticket Gescand</h1>
@@ -293,10 +297,8 @@ if ($ticket !== null && !empty($ticket['PrijsOpmerking'])) {
                     </div>
 
                     <a href="scan.php" class="btn-scan-action">
-                        <!-- Barcode/Scan SVG Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
+                        <!-- Barcode/Scan FontAwesome Icon -->
+                        <i class="fa-solid fa-barcode" style="font-size: 1.1rem;"></i>
                         <span>Scan volgende ticket</span>
                     </a>
 
@@ -308,9 +310,7 @@ if ($ticket !== null && !empty($ticket['PrijsOpmerking'])) {
                 <div class="scan-card">
                     <div class="icon-circle error">
                         <!-- Cross Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <i class="fa-solid fa-xmark" style="font-size: 2.2rem;"></i>
                     </div>
 
                     <h1 class="scan-title">Scan Mislukt</h1>
@@ -348,9 +348,7 @@ if ($ticket !== null && !empty($ticket['PrijsOpmerking'])) {
                 <div class="scan-card">
                     <div class="icon-circle ready">
                         <!-- Barcode Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2zM9 16v-6m3 6v-6m3 6v-6" />
-                        </svg>
+                        <i class="fa-solid fa-barcode" style="font-size: 2.2rem;"></i>
                     </div>
 
                     <h1 class="scan-title">Ticket Scannen</h1>

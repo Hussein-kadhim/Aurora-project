@@ -353,7 +353,8 @@ tr:hover td {
     text-decoration: none;
 }
 
-.action-btn svg {
+.action-btn svg,
+.action-btn i {
     width: 18px;
     height: 18px;
 }
@@ -651,7 +652,8 @@ tr:hover td {
         background-color: rgba(211, 16, 39, 0.03);
     }
 
-    td.actions-cell .action-btn svg {
+    td.actions-cell .action-btn svg,
+    td.actions-cell .action-btn i {
         display: none;
     }
 
