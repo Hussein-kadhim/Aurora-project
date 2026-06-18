@@ -6,18 +6,35 @@
  * Laadt de database-configuratie, initialiseert de controller en roept de index-actie aan.
  */
 
-// Laad database configuratie (één niveau omhoog)
-require_once __DIR__ . '/../config.php';
+// Sta toe dat de applicatie de DB fout opvangt
+if (!defined('ALLOW_DB_FAILURE')) {
+    define('ALLOW_DB_FAILURE', true);
+}
 
-// Laad de controller (die ook het model laadt)
-require_once __DIR__ . '/MeldingController.php';
+try {
+    // Laad database configuratie (één niveau omhoog)
+    require_once __DIR__ . '/../config.php';
 
-// Start de controller
-$controller = new MeldingController($pdo);
+    // Laad de controller (die ook het model laadt)
+    require_once __DIR__ . '/MeldingController.php';
 
-$action = $_GET['action'] ?? 'index';
-if ($action === 'nieuw') {
-    $controller->nieuw();
-} else {
-    $controller->index();
+    // Start de controller
+    $controller = new MeldingController($pdo);
+
+    $action = $_GET['action'] ?? 'index';
+    if ($action === 'nieuw') {
+        $controller->nieuw();
+    } else {
+        $controller->index();
+    }
+} catch (PDOException $e) {
+    $techError = true;
+    $filterType = '';
+    $filterStatus = '';
+    $filterDate = '';
+    $meldingen = [];
+    $totalFiltered = 0;
+    $totalPages = 1;
+    $page = 1;
+    require_once __DIR__ . '/views/meldingen.php';
 }

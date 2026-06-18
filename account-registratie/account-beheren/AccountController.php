@@ -27,9 +27,22 @@ class AccountController {
         // 3. Haal zoekopdracht op
         $search = trim($_GET['search'] ?? '');
 
-        // 4. Haal data op uit het Model
-        $accounts = $this->model->getAllAccounts($search);
-        $totalCount = $this->model->getAccountCount();
+        $dbFout = false;
+        $foutmelding = '';
+        $accounts = [];
+        $totalCount = 0;
+
+        try {
+            // 4. Haal data op uit het Model
+            $accounts = $this->model->getAllAccounts($search);
+            $totalCount = $this->model->getAccountCount();
+        } catch (PDOException $e) {
+            $dbFout = true;
+            $foutmelding = 'De server is momenteel niet bereikbaar';
+        } catch (Throwable $e) {
+            $dbFout = true;
+            $foutmelding = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+        }
 
         // 5. Laad de view
         require_once __DIR__ . '/views/index.php';
@@ -63,39 +76,43 @@ class AccountController {
             // 1. Validatie: Check verplichte velden
             if (empty($voornaam) || empty($achternaam) || empty($gebruikersnaam) || empty($email) || empty($mobiel) || empty($rol) || empty($wachtwoord)) {
                 $error = 'Vul alle verplichte velden in.';
-            } elseif ($this->model->emailOfGebruikersnaamBestaat($email, $gebruikersnaam)) {
-                $error = 'Dit e-mailadres of deze gebruikersnaam is al in gebruik.';
             } else {
-                // 2. Wachtwoord hashen
-                $gehashtWachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
-
-                $data = [
-                    'Voornaam'       => $voornaam,
-                    'Tussenvoegsel'  => $tussenvoegsel,
-                    'Achternaam'     => $achternaam,
-                    'Gebruikersnaam' => $gebruikersnaam,
-                    'Email'          => $email,
-                    'Mobiel'         => $mobiel,
-                    'Rol'            => $rol,
-                    'Wachtwoord'     => $gehashtWachtwoord
-                ];
-
                 try {
-                    // 3. Opslaan via Model (Transactie)
-                    $success = $this->model->createAccount($data);
-
-                    if ($success) {
-                        header('Location: index.php?success=1');
-                        exit();
+                    if ($this->model->emailOfGebruikersnaamBestaat($email, $gebruikersnaam)) {
+                        $error = 'Dit e-mailadres of deze gebruikersnaam is al in gebruik.';
                     } else {
-                        $error = 'Er is een fout opgetreden bij het opslaan van het account. Probeer het later nog eens.';
+                        // 2. Wachtwoord hashen
+                        $gehashtWachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
+
+                        $data = [
+                            'Voornaam'       => $voornaam,
+                            'Tussenvoegsel'  => $tussenvoegsel,
+                            'Achternaam'     => $achternaam,
+                            'Gebruikersnaam' => $gebruikersnaam,
+                            'Email'          => $email,
+                            'Mobiel'         => $mobiel,
+                            'Rol'            => $rol,
+                            'Wachtwoord'     => $gehashtWachtwoord
+                        ];
+
+                        // 3. Opslaan via Model (Transactie)
+                        $success = $this->model->createAccount($data);
+
+                        if ($success) {
+                            header('Location: index.php?success=1');
+                            exit();
+                        } else {
+                            $error = 'Er is een fout opgetreden bij het opslaan van het account. Probeer het later nog eens.';
+                        }
                     }
                 } catch (PDOException $e) {
                     if ($e->getCode() == 23000 || strpos($e->getMessage(), '1062') !== false) {
                         $error = 'Dit e-mailadres of deze gebruikersnaam is al in gebruik.';
                     } else {
-                        $error = 'Er is een fout opgetreden bij het opslaan van het account. Probeer het later nog eens.';
+                        $error = 'Er kon geen verbinding worden gemaakt met de database. Probeer het later nog eens.';
                     }
+                } catch (Throwable $e) {
+                    $error = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
                 }
             }
         }

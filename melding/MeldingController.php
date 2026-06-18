@@ -209,17 +209,23 @@ class MeldingController {
             $isActief = ($delivery === 'INSTANT');
 
             if (empty($errors)) {
-                $gebruikerId = (int)$_SESSION['gebruiker_id'];
-                $medewerkerId = $this->model->getMedewerkerIdByGebruikerId($gebruikerId);
+                try {
+                    $gebruikerId = (int)$_SESSION['gebruiker_id'];
+                    $medewerkerId = $this->model->getMedewerkerIdByGebruikerId($gebruikerId);
 
-                $success = $this->model->createMelding($medewerkerId, $type, $titel, $isActief, $inhoud);
+                    $success = $this->model->createMelding($medewerkerId, $type, $titel, $isActief, $inhoud);
 
-                if ($success) {
-                    $_SESSION['success_message'] = 'Melding succesvol aangemaakt en versturd!';
-                    header('Location: meldingen.php');
-                    exit();
-                } else {
-                    $errors[] = 'Er is een technische fout opgetreden bij het opslaan van de melding.';
+                    if ($success) {
+                        $_SESSION['success_message'] = 'Melding succesvol aangemaakt en versturd!';
+                        header('Location: meldingen.php');
+                        exit();
+                    } else {
+                        $errors[] = 'Er is een technische fout opgetreden bij het opslaan van de melding.';
+                    }
+                } catch (PDOException $e) {
+                    $errors[] = 'De server is momenteel niet bereikbaar. Probeer het later nog eens.';
+                } catch (Throwable $e) {
+                    $errors[] = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
                 }
             }
         }
