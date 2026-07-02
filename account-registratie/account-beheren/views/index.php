@@ -70,6 +70,19 @@ $totalCount = $totalCount ?? 0;
                         }
                     }, 3000); // 3 seconden zichtbaar
                 </script>
+            <?php elseif (!empty($_GET['success_edit']) && $_GET['success_edit'] == 1): ?>
+                <div id="success-alert" class="alert alert-success" style="background-color: #ECFDF5; color: #065F46; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #10B981; transition: opacity 0.5s ease;">
+                    <strong>Gelukt!</strong> Account succesvol gewijzigd.
+                </div>
+                <script>
+                    setTimeout(function() {
+                        const alertBox = document.getElementById('success-alert');
+                        if (alertBox) {
+                            alertBox.style.opacity = '0';
+                            setTimeout(() => alertBox.style.display = 'none', 500); // Wacht tot fade-out animatie klaar is
+                        }
+                    }, 3000); // 3 seconden zichtbaar
+                </script>
             <?php endif; ?>
 
             <!-- Unhappy Scenario: Geen accounts in database of geen resultaten -->
@@ -145,7 +158,7 @@ $totalCount = $totalCount ?? 0;
                                             <?php endif; ?>
                                         </td>
                                         <td style="text-align: right;" class="actions-cell">
-                                            <a href="#" class="action-btn btn-edit" title="Bewerken" onclick="alert('Bewerken is nog in ontwikkeling.'); return false;">
+                                            <a href="wijzigen.php?id=<?= $row['Id'] ?>" class="action-btn btn-edit" title="Bewerken">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                                 <span class="btn-text">Wijzigen</span>
                                             </a>
