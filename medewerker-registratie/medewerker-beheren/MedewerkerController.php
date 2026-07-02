@@ -182,4 +182,58 @@ class MedewerkerController {
 
         require_once __DIR__ . '/views/create.php';
     }
+
+    /**
+     * Actie voor het bewerken van een bestaande medewerker.
+     */
+    public function edit() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if ($id <= 0) {
+            header('Location: index.php');
+            exit();
+        }
+
+        $fouten = [];
+
+        try {
+            $medewerker = $this->model->getMedewerkerById($id);
+            if (!$medewerker) {
+                $_SESSION['error'] = 'De opgevraagde medewerker bestaat niet of is niet actief.';
+                header('Location: index.php');
+                exit();
+            }
+        } catch (PDOException $e) {
+            $dbFout = true;
+            $foutmelding = 'De server is momenteel niet bereikbaar';
+            $medewerkers = [];
+            $totalCount = 0;
+            $search = '';
+            require_once __DIR__ . '/views/index.php';
+            exit();
+        }
+
+        $gebruikerId = (int)$medewerker['GebruikerId'];
+
+        // Initialiseer formuliervariabelen met database data
+        $voornaam        = $medewerker['Voornaam'];
+        $tussenvoegsel   = $medewerker['Tussenvoegsel'] ?? '';
+        $achternaam      = $medewerker['Achternaam'];
+        $email           = $medewerker['Email'] ?? $medewerker['Gebruikersnaam'];
+        $mobiel          = $medewerker['Mobiel'] ?? '';
+        $medewerkersoort = $medewerker['Medewerkersoort'];
+        $rol             = $medewerker['Rol'] ?? 'Medewerker';
+        $opmerking       = $medewerker['Opmerking'] ?? '';
+
+        require_once __DIR__ . '/views/edit.php';
+    }
 }
