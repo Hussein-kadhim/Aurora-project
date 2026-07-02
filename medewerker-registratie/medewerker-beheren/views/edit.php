@@ -52,6 +52,25 @@ $opmerking       = $opmerking ?? '';
                 </div>
             </div>
 
+            <!-- Foutmeldingen -->
+            <?php if (!empty($fouten)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <div style="display: flex; align-items: flex-start;">
+                        <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px; flex-shrink: 0; color: #D31027;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <strong style="display: block; margin-bottom: 4px;">Fout bij het opslaan:</strong>
+                            <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.5;">
+                                <?php foreach ($fouten as $fout): ?>
+                                    <li><?= htmlspecialchars($fout) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Formulier Kaart -->
             <div class="form-card">
                 <form method="post" action="index.php?action=edit&id=<?= (int)$id ?>" id="editMedewerkerForm" novalidate>
@@ -130,5 +149,41 @@ $opmerking       = $opmerking ?? '';
                                 <option value="Medewerker" <?= $rol === 'Medewerker' ? 'selected' : '' ?>>Medewerker</option>
                                 <option value="Administrator" <?= $rol === 'Administrator' ? 'selected' : '' ?>>Administrator</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <h3 class="form-section-title" style="margin-top: 32px;">Toegangswachtwoord</h3>
+                    <div class="form-grid">
+                        <div class="form-group col-3">
+                            <label for="wachtwoord">Wachtwoord</label>
+                            <input 
+                                type="password" 
+                                id="wachtwoord" 
+                                name="wachtwoord" 
+                                placeholder="••••••••"
+                            >
+                            <span class="input-helper">Laat leeg om het huidige wachtwoord te behouden. Minimaal 6 tekens indien ingevuld.</span>
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="wachtwoord_bevestigen">Wachtwoord bevestigen</label>
+                            <input 
+                                type="password" 
+                                id="wachtwoord_bevestigen" 
+                                name="wachtwoord_bevestigen" 
+                                placeholder="••••••••"
+                            >
+                        </div>
+                    </div>
+
+                    <h3 class="form-section-title" style="margin-top: 32px;">Overige opmerkingen</h3>
+                    <div class="form-grid">
+                        <div class="form-group col-6">
+                            <label for="opmerking">Opmerking</label>
+                            <textarea 
+                                id="opmerking" 
+                                name="opmerking" 
+                                rows="3" 
+                                placeholder="Eventuele opmerking over deze medewerker..."
+                            ><?= htmlspecialchars($opmerking) ?></textarea>
                         </div>
                     </div>
