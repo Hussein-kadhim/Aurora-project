@@ -176,5 +176,39 @@ class MedewerkerModel {
             throw $e;
         }
     }
+
+    /**
+     * Verwijdert (deactiveert) een medewerker onder een database-transactie.
+     * 
+     * @param int $medewerkerId
+     * @param int $gebruikerId
+     * @return bool True bij succes, anders false of werpt uitzondering
+     */
+    public function deleteMedewerker(int $medewerkerId, int $gebruikerId): bool {
+        $this->pdo->beginTransaction();
+        try {
+            // 1. Deactiveer Gebruiker
+            $stmtGebruiker = $this->pdo->prepare("UPDATE Gebruiker SET IsActief = 0 WHERE Id = ?");
+            $stmtGebruiker->execute([$gebruikerId]);
+
+            // 2. Deactiveer Contactgegevens
+            $stmtContact = $this->pdo->prepare("UPDATE Contact SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmtContact->execute([$gebruikerId]);
+
+            // 3. Deactiveer Rol
+            $stmtRol = $this->pdo->prepare("UPDATE Rol SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmtRol->execute([$gebruikerId]);
+
+            // 4. Deactiveer Medewerker
+            $stmtMedewerker = $this->pdo->prepare("UPDATE Medewerker SET IsActief = 0 WHERE Id = ?");
+            $stmtMedewerker->execute([$medewerkerId]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
 }
 
