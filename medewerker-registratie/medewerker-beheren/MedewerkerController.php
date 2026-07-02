@@ -227,6 +227,26 @@ class MedewerkerController {
         $gebruikerId = !empty($medewerker) ? (int)$medewerker['GebruikerId'] : 0;
         $naam = !empty($medewerker) ? trim($medewerker['Voornaam'] . ' ' . ($medewerker['Tussenvoegsel'] ? $medewerker['Tussenvoegsel'] . ' ' : '') . $medewerker['Achternaam']) : '';
 
+        // 4. POST = verwijderen uitvoeren
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$dbFout) {
+            try {
+                $deleted = $this->model->deleteMedewerker($id, $gebruikerId);
+
+                if ($deleted) {
+                    $_SESSION['success'] = 'Medewerker ' . htmlspecialchars($naam) . ' is succesvol verwijderd.';
+                } else {
+                    $_SESSION['error'] = 'De medewerker kon niet worden verwijderd. Probeer het later nog eens.';
+                }
+            } catch (PDOException $e) {
+                $_SESSION['error'] = 'De server is momenteel niet bereikbaar. De medewerker kon niet worden verwijderd.';
+            } catch (Throwable $e) {
+                $_SESSION['error'] = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+            }
+
+            header('Location: index.php');
+            exit();
+        }
+
         // 5. GET = bevestigingspagina tonen
         require_once __DIR__ . '/views/delete.php';
     }
