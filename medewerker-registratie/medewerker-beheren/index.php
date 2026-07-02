@@ -23,6 +23,8 @@ try {
     $action = $_GET['action'] ?? 'index';
     if ($action === 'create') {
         $controller->create();
+    } elseif ($action === 'edit') {
+        $controller->edit();
     } else {
         $controller->index();
     }
