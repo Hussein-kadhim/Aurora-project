@@ -234,6 +234,81 @@ class MedewerkerController {
         $rol             = $medewerker['Rol'] ?? 'Medewerker';
         $opmerking       = $medewerker['Opmerking'] ?? '';
 
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $voornaam        = trim($_POST['voornaam'] ?? '');
+            $tussenvoegsel   = trim($_POST['tussenvoegsel'] ?? '');
+            $achternaam      = trim($_POST['achternaam'] ?? '');
+            $email           = trim($_POST['email'] ?? '');
+            $mobiel          = trim($_POST['mobiel'] ?? '');
+            $medewerkersoort = trim($_POST['medewerkersoort'] ?? '');
+            $rol             = trim($_POST['rol'] ?? '');
+            $wachtwoord      = $_POST['wachtwoord'] ?? '';
+            $wachtwoordBev   = $_POST['wachtwoord_bevestigen'] ?? '';
+            $opmerking       = trim($_POST['opmerking'] ?? '');
+
+            // Validatie
+            if ($voornaam === '') {
+                $fouten[] = 'Vul een voornaam in.';
+            } elseif (strlen($voornaam) > 50) {
+                $fouten[] = 'De voornaam mag maximaal 50 tekens lang zijn.';
+            }
+
+            if (strlen($tussenvoegsel) > 10) {
+                $fouten[] = 'Het tussenvoegsel mag maximaal 10 tekens lang zijn.';
+            }
+
+            if ($achternaam === '') {
+                $fouten[] = 'Vul een achternaam in.';
+            } elseif (strlen($achternaam) > 50) {
+                $fouten[] = 'De achternaam mag maximaal 50 tekens lang zijn.';
+            }
+
+            if ($email === '') {
+                $fouten[] = 'Vul een e-mailadres in.';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $fouten[] = 'Het ingevulde e-mailadres is niet geldig.';
+            } elseif (strlen($email) > 100) {
+                $fouten[] = 'Het e-mailadres mag maximaal 100 tekens lang zijn.';
+            } elseif ($this->model->gebruikersnaamBestaatVoorAnder($email, $gebruikerId)) {
+                $fouten[] = 'Dit e-mailadres is al in gebruik.';
+            }
+
+            if ($mobiel === '') {
+                $fouten[] = 'Vul een mobiel telefoonnummer in.';
+            } elseif (strlen($mobiel) > 20) {
+                $fouten[] = 'Het mobiele nummer mag maximaal 20 tekens lang zijn.';
+            }
+
+            if ($medewerkersoort === '') {
+                $fouten[] = 'Kies een functie/medewerkersoort.';
+            } elseif (strlen($medewerkersoort) > 20) {
+                $fouten[] = 'De medewerkersoort mag maximaal 20 tekens lang zijn.';
+            }
+
+            if ($rol === '') {
+                $fouten[] = 'Kies een systeemrol.';
+            } elseif (!in_array($rol, ['Medewerker', 'Administrator'])) {
+                $fouten[] = 'De geselecteerde rol is niet geldig.';
+            }
+
+            // Wachtwoord is optioneel bij wijzigen, alleen valideren als het is ingevuld
+            if ($wachtwoord !== '') {
+                if (strlen($wachtwoord) < 6) {
+                    $fouten[] = 'Het wachtwoord moet minimaal 6 tekens lang zijn.';
+                } elseif (strlen($wachtwoord) > 255) {
+                    $fouten[] = 'Het wachtwoord mag maximaal 255 tekens lang zijn.';
+                }
+
+                if ($wachtwoord !== $wachtwoordBev) {
+                    $fouten[] = 'De wachtwoorden zijn niet identiek.';
+                }
+            }
+
+            if (strlen($opmerking) > 250) {
+                $fouten[] = 'De opmerking mag maximaal 250 tekens lang zijn.';
+            }
+        }
+
         require_once __DIR__ . '/views/edit.php';
     }
 }
