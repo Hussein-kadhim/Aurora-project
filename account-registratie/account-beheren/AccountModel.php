@@ -26,10 +26,11 @@ class AccountModel {
                 r.Naam AS RolNaam
             FROM Gebruiker g
             LEFT JOIN Rol r ON g.Id = r.GebruikerId AND r.IsActief = 1
+            WHERE g.IsActief = 1
         ";
 
         if ($search !== '') {
-            $query .= " WHERE g.Gebruikersnaam LIKE :search";
+            $query .= " AND g.Gebruikersnaam LIKE :search";
         }
 
         $query .= " ORDER BY g.Id ASC";
@@ -49,7 +50,7 @@ class AccountModel {
      * @return int Aantal accounts
      */
     public function getAccountCount() {
-        $stmt = $this->pdo->query("SELECT COUNT(*) FROM Gebruiker");
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM Gebruiker WHERE IsActief = 1");
         return (int) $stmt->fetchColumn();
     }
 
@@ -275,6 +276,59 @@ class AccountModel {
             'id'             => $id
         ]);
         return $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Controleert of een gebruiker actieve tickets heeft.
+     * 
+     * @param int $gebruikerId
+     * @return bool
+     */
+    public function hasActiveTickets($gebruikerId) {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) 
+            FROM Ticket t
+            JOIN Bezoeker b ON t.BezoekerId = b.Id
+            WHERE b.GebruikerId = :gebruikerId 
+              AND t.IsActief = 1 
+              AND t.Status != 'Geannuleerd'
+        ");
+        $stmt->execute(['gebruikerId' => $gebruikerId]);
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Verwijdert (archiveert) een account door IsActief op 0 te zetten.
+     * 
+     * @param int $id
+     * @return bool
+     */
+    public function deleteAccount($id) {
+        $this->pdo->beginTransaction();
+
+        try {
+            // Set IsActief = 0 in Gebruiker, Rol, Contact, and also Bezoeker/Medewerker if they exist
+            $stmt1 = $this->pdo->prepare("UPDATE Gebruiker SET IsActief = 0 WHERE Id = ?");
+            $stmt1->execute([$id]);
+
+            $stmt2 = $this->pdo->prepare("UPDATE Rol SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt2->execute([$id]);
+
+            $stmt3 = $this->pdo->prepare("UPDATE Contact SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt3->execute([$id]);
+
+            $stmt4 = $this->pdo->prepare("UPDATE Bezoeker SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt4->execute([$id]);
+
+            $stmt5 = $this->pdo->prepare("UPDATE Medewerker SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt5->execute([$id]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 }
 

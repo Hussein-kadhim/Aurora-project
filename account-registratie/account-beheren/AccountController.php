@@ -221,5 +221,63 @@ class AccountController {
         // Laad de view
         require_once __DIR__ . '/views/edit.php';
     }
+
+    /**
+     * Verwerkt het verwijderen (archiveren) van een bestaand account.
+     */
+    public function delete() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$id) {
+            header('Location: index.php');
+            exit();
+        }
+
+        // Check of account bestaat en actief is
+        try {
+            $account = $this->model->getAccountById($id);
+        } catch (PDOException $e) {
+            $account = null;
+        }
+
+        if (!$account) {
+            header('Location: index.php');
+            exit();
+        }
+
+        try {
+            // Controleer op actieve tickets
+            if ($this->model->hasActiveTickets($id)) {
+                header('Location: index.php?error_delete=1');
+                exit();
+            }
+
+            // Voer de soft-delete uit
+            $success = $this->model->deleteAccount($id);
+
+            if ($success) {
+                header('Location: index.php?success_delete=1');
+                exit();
+            } else {
+                header('Location: index.php?error_unknown=1');
+                exit();
+            }
+        } catch (PDOException $e) {
+            header('Location: index.php?error_unknown=1');
+            exit();
+        } catch (Throwable $e) {
+            header('Location: index.php?error_unknown=1');
+            exit();
+        }
+    }
 }
 
