@@ -57,3 +57,29 @@ $foutmelding = $foutmelding ?? '';
                     <h3 style="color: #D31027; margin: 0 0 8px 0; font-size: 1.1rem;">Let op! Deze actie kan niet ongedaan worden gemaakt.</h3>
                     <p style="color: #555; margin: 0; font-size: 0.95rem;">U staat op het punt om de onderstaande medewerker te verwijderen uit het systeem.</p>
                 </div>
+
+                <!-- Medewerker Gegevens Overzicht -->
+                <div style="background: #FAFAF5; border: 1px solid #E5D3B3; border-radius: 10px; padding: 20px; margin-bottom: 24px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px 12px; font-weight: 600; color: #131313; width: 160px; vertical-align: top;">Naam</td>
+                            <td style="padding: 8px 12px; color: #555;"><?= htmlspecialchars($naam) ?></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; font-weight: 600; color: #131313; vertical-align: top;">Medewerkernummer</td>
+                            <td style="padding: 8px 12px; color: #555;">#<?= (int)($medewerker['MedewerkerNummer'] ?? $medewerker['Nummer'] ?? 0) ?></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; font-weight: 600; color: #131313; vertical-align: top;">E-mailadres</td>
+                            <td style="padding: 8px 12px; color: #555;"><?= htmlspecialchars($medewerker['Email'] ?? $medewerker['Gebruikersnaam'] ?? '—') ?></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; font-weight: 600; color: #131313; vertical-align: top;">Functie</td>
+                            <td style="padding: 8px 12px; color: #555;"><?= htmlspecialchars($medewerker['Medewerkersoort'] ?? '—') ?></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; font-weight: 600; color: #131313; vertical-align: top;">Systeemrol</td>
+                            <td style="padding: 8px 12px; color: #555;"><?= htmlspecialchars($medewerker['Rol'] ?? '—') ?></td>
+                        </tr>
+                    </table>
+                </div>
