@@ -182,4 +182,29 @@ class MedewerkerController {
 
         require_once __DIR__ . '/views/create.php';
     }
+
+    /**
+     * Actie voor het verwijderen (deactiveren) van een medewerker.
+     * GET: toont de bevestigingspagina.
+     * POST: voert de soft delete uit.
+     */
+    public function delete() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        // 2. Bepaal het medewerker-ID (GET of POST)
+        $id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
+        if ($id <= 0) {
+            $_SESSION['error'] = 'Ongeldige medewerker opgegeven.';
+            header('Location: index.php');
+            exit();
+        }
+    }
 }
