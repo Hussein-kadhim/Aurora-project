@@ -217,5 +217,28 @@ class MedewerkerModel {
             return false;
         }
     }
+
+    /**
+     * Controleert of een e-mailadres / gebruikersnaam al bestaat voor een ANDERE gebruiker.
+     * 
+     * @param string $email
+     * @param int $gebruikerId
+     * @return bool
+     */
+    public function gebruikersnaamBestaatVoorAnder(string $email, int $gebruikerId): bool {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM Gebruiker WHERE Gebruikersnaam = ? AND Id != ?");
+        $stmt->execute([$email, $gebruikerId]);
+        if ((int)$stmt->fetchColumn() > 0) {
+            return true;
+        }
+
+        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM Contact WHERE Email = ? AND GebruikerId != ?");
+        $stmt2->execute([$email, $gebruikerId]);
+        if ((int)$stmt2->fetchColumn() > 0) {
+            return true;
+        }
+
+        return false;
+    }
 }
 
