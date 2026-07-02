@@ -210,5 +210,46 @@ class MedewerkerModel {
             throw $e;
         }
     }
+
+    /**
+     * Haalt een specifieke actieve medewerker op basis van Medewerker Id.
+     * 
+     * @param int $id MedewerkerId
+     * @return array|false Medewerkergegevens of false bij niet gevonden
+     */
+    public function getMedewerkerById(int $id) {
+        $query = "
+            SELECT
+                m.Id                AS MedewerkerId,
+                m.GebruikerId,
+                m.Nummer            AS MedewerkerNummer,
+                m.Medewerkersoort,
+                m.IsActief          AS MedewerkerActief,
+                g.Voornaam,
+                g.Tussenvoegsel,
+                g.Achternaam,
+                g.Gebruikersnaam,
+                c.Email,
+                c.Mobiel,
+                r.Naam              AS Rol,
+                g.Opmerking
+            FROM medewerker m
+            JOIN gebruiker  g ON g.Id = m.GebruikerId
+            LEFT JOIN contact c ON c.GebruikerId = g.Id AND c.IsActief = 1
+            LEFT JOIN rol     r ON r.GebruikerId = g.Id AND r.IsActief = 1
+            WHERE m.Id = :id AND m.IsActief = 1
+        ";
+
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(['id' => $id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return false;
+        }
+    }
 }
 

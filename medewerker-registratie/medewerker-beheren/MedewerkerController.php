@@ -206,5 +206,28 @@ class MedewerkerController {
             header('Location: index.php');
             exit();
         }
+
+        // 3. Haal medewerker op
+        $dbFout = false;
+        $foutmelding = '';
+
+        try {
+            $medewerker = $this->model->getMedewerkerById($id);
+            if (!$medewerker) {
+                $_SESSION['error'] = 'De opgevraagde medewerker bestaat niet of is al verwijderd.';
+                header('Location: index.php');
+                exit();
+            }
+        } catch (PDOException $e) {
+            $dbFout = true;
+            $foutmelding = 'De server is momenteel niet bereikbaar.';
+            $medewerker = [];
+        }
+
+        $gebruikerId = !empty($medewerker) ? (int)$medewerker['GebruikerId'] : 0;
+        $naam = !empty($medewerker) ? trim($medewerker['Voornaam'] . ' ' . ($medewerker['Tussenvoegsel'] ? $medewerker['Tussenvoegsel'] . ' ' : '') . $medewerker['Achternaam']) : '';
+
+        // 5. GET = bevestigingspagina tonen
+        require_once __DIR__ . '/views/delete.php';
     }
 }
