@@ -307,6 +307,35 @@ class MedewerkerController {
             if (strlen($opmerking) > 250) {
                 $fouten[] = 'De opmerking mag maximaal 250 tekens lang zijn.';
             }
+
+            // Als er geen fouten zijn, opslaan!
+            if (empty($fouten)) {
+                try {
+                    $saved = $this->model->updateMedewerker($id, $gebruikerId, [
+                        'voornaam'        => $voornaam,
+                        'tussenvoegsel'   => $tussenvoegsel,
+                        'achternaam'      => $achternaam,
+                        'email'           => $email,
+                        'mobiel'          => $mobiel,
+                        'medewerkersoort' => $medewerkersoort,
+                        'rol'             => $rol,
+                        'wachtwoord'      => $wachtwoord,
+                        'opmerking'       => $opmerking
+                    ]);
+
+                    if ($saved) {
+                        $_SESSION['success'] = 'Gegevens van medewerker ' . htmlspecialchars($voornaam . ' ' . $achternaam) . ' zijn succesvol gewijzigd.';
+                        header('Location: index.php');
+                        exit();
+                    } else {
+                        $fouten[] = 'De medewerker kon niet worden opgeslagen. Probeer het later nog eens.';
+                    }
+                } catch (PDOException $e) {
+                    $fouten[] = 'Er kon geen verbinding worden gemaakt met de database. Probeer het later nog eens.';
+                } catch (Throwable $e) {
+                    $fouten[] = 'Er is iets fout gegaan bij het verwerken. Probeer het later nog eens.';
+                }
+            }
         }
 
         require_once __DIR__ . '/views/edit.php';
