@@ -266,60 +266,89 @@ class TicketController {
 
         // 1. Controleer of de gebruiker is ingelogd
         if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Niet ingelogd']);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Niet ingelogd']);
+            } else {
+                header('Location: index.php');
+            }
             exit();
         }
 
         $gebruikerId = (int)$_SESSION['gebruiker_id'];
         $rol = $_SESSION['rol'] ?? '';
 
+        // Haal ticket ID op
+        $ticketId = 0;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ticketId = (int)($_POST['id'] ?? 0);
-
-            if ($ticketId <= 0) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Ongeldig ticket ID']);
-                exit();
-            }
-
-            // Controleer of de bezoeker eigenaar is van het ticket
-            if ($rol === 'Bezoeker' && !$this->model->isTicketOwner($ticketId, $gebruikerId)) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Geen toegang']);
-                exit();
-            }
-
-            // Haal ticket op
-            $ticket = $this->model->getTicketById($ticketId);
-            if (!$ticket) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Ticket niet gevonden']);
-                exit();
-            }
-
-            // Controleer of het ticket gebruikt is
-            $status = strtolower($ticket['TicketStatus']);
-            if ($status === 'gebruikt' || $status === 'bezet') {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Gebruikt ticket kan niet worden verwijderd']);
-                exit();
-            }
-
-            try {
-                $this->model->deleteTicket($ticketId);
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true]);
-                exit();
-            } catch (PDOException $e) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Databasefout']);
-                exit();
-            }
+        } else {
+            $ticketId = (int)($_GET['id'] ?? 0);
         }
 
-        header('Location: index.php');
-        exit();
+        if ($ticketId <= 0) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Ongeldig ticket ID']);
+            } else {
+                header('Location: index.php');
+            }
+            exit();
+        }
+
+        // Controleer of de bezoeker eigenaar is van het ticket
+        if ($rol === 'Bezoeker' && !$this->model->isTicketOwner($ticketId, $gebruikerId)) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Geen toegang']);
+            } else {
+                header('Location: index.php?error_delete=1');
+            }
+            exit();
+        }
+
+        // Haal ticket op
+        $ticket = $this->model->getTicketById($ticketId);
+        if (!$ticket) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Ticket niet gevonden']);
+            } else {
+                header('Location: index.php');
+            }
+            exit();
+        }
+
+        // Controleer of het ticket gebruikt is of al geannuleerd is
+        $status = strtolower($ticket['TicketStatus']);
+        if ($status === 'gebruikt' || $status === 'bezet' || $status === 'geannuleerd') {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Ticket kan niet worden geannuleerd']);
+            } else {
+                header('Location: index.php?error_delete=1');
+            }
+            exit();
+        }
+
+        try {
+            $this->model->deleteTicket($ticketId);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true]);
+            } else {
+                header('Location: index.php?success_delete=1');
+            }
+            exit();
+        } catch (PDOException $e) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Databasefout']);
+            } else {
+                header('Location: index.php?error_delete=1');
+            }
+            exit();
+        }
     }
 }
 
