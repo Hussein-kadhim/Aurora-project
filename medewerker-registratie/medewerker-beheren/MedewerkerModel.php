@@ -178,40 +178,6 @@ class MedewerkerModel {
     }
 
     /**
-     * Verwijdert (deactiveert) een medewerker onder een database-transactie.
-     * 
-     * @param int $medewerkerId
-     * @param int $gebruikerId
-     * @return bool True bij succes, anders false of werpt uitzondering
-     */
-    public function deleteMedewerker(int $medewerkerId, int $gebruikerId): bool {
-        $this->pdo->beginTransaction();
-        try {
-            // 1. Deactiveer Gebruiker
-            $stmtGebruiker = $this->pdo->prepare("UPDATE Gebruiker SET IsActief = 0 WHERE Id = ?");
-            $stmtGebruiker->execute([$gebruikerId]);
-
-            // 2. Deactiveer Contactgegevens
-            $stmtContact = $this->pdo->prepare("UPDATE Contact SET IsActief = 0 WHERE GebruikerId = ?");
-            $stmtContact->execute([$gebruikerId]);
-
-            // 3. Deactiveer Rol
-            $stmtRol = $this->pdo->prepare("UPDATE Rol SET IsActief = 0 WHERE GebruikerId = ?");
-            $stmtRol->execute([$gebruikerId]);
-
-            // 4. Deactiveer Medewerker
-            $stmtMedewerker = $this->pdo->prepare("UPDATE Medewerker SET IsActief = 0 WHERE Id = ?");
-            $stmtMedewerker->execute([$medewerkerId]);
-
-            $this->pdo->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->pdo->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
      * Haalt een specifieke actieve medewerker op basis van Medewerker Id.
      * 
      * @param int $id MedewerkerId
@@ -249,6 +215,145 @@ class MedewerkerModel {
                 throw $e;
             }
             return false;
+        }
+    }
+
+    /**
+     * Controleert of een e-mailadres / gebruikersnaam al bestaat voor een ANDERE gebruiker.
+     * 
+     * @param string $email
+     * @param int $gebruikerId
+     * @return bool
+     */
+    public function gebruikersnaamBestaatVoorAnder(string $email, int $gebruikerId): bool {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM Gebruiker WHERE Gebruikersnaam = ? AND Id != ?");
+        $stmt->execute([$email, $gebruikerId]);
+        if ((int)$stmt->fetchColumn() > 0) {
+            return true;
+        }
+
+        $stmt2 = $this->pdo->prepare("SELECT COUNT(*) FROM Contact WHERE Email = ? AND GebruikerId != ?");
+        $stmt2->execute([$email, $gebruikerId]);
+        if ((int)$stmt2->fetchColumn() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Wijzigt een bestaande medewerker onder een database-transactie.
+     * 
+     * @param int $medewerkerId
+     * @param int $gebruikerId
+     * @param array $data De formulierdata van de medewerker
+     * @return bool True bij succes, anders false of werpt uitzondering
+     */
+    public function updateMedewerker(int $medewerkerId, int $gebruikerId, array $data): bool {
+        $this->pdo->beginTransaction();
+        try {
+            // 1. Update Gebruiker
+            if (!empty($data['wachtwoord'])) {
+                $wachtwoordHash = password_hash($data['wachtwoord'], PASSWORD_DEFAULT);
+                $stmtGebruiker = $this->pdo->prepare("
+                    UPDATE Gebruiker 
+                    SET Voornaam = :voornaam, Tussenvoegsel = :tussenvoegsel, Achternaam = :achternaam, 
+                        Gebruikersnaam = :gebruikersnaam, Wachtwoord = :wachtwoord, Opmerking = :opmerking
+                    WHERE Id = :gebruiker_id
+                ");
+                $stmtGebruiker->execute([
+                    'voornaam'       => $data['voornaam'],
+                    'tussenvoegsel'  => !empty($data['tussenvoegsel']) ? $data['tussenvoegsel'] : null,
+                    'achternaam'     => $data['achternaam'],
+                    'gebruikersnaam' => $data['email'],
+                    'wachtwoord'     => $wachtwoordHash,
+                    'opmerking'      => !empty($data['opmerking']) ? $data['opmerking'] : null,
+                    'gebruiker_id'   => $gebruikerId
+                ]);
+            } else {
+                $stmtGebruiker = $this->pdo->prepare("
+                    UPDATE Gebruiker 
+                    SET Voornaam = :voornaam, Tussenvoegsel = :tussenvoegsel, Achternaam = :achternaam, 
+                        Gebruikersnaam = :gebruikersnaam, Opmerking = :opmerking
+                    WHERE Id = :gebruiker_id
+                ");
+                $stmtGebruiker->execute([
+                    'voornaam'       => $data['voornaam'],
+                    'tussenvoegsel'  => !empty($data['tussenvoegsel']) ? $data['tussenvoegsel'] : null,
+                    'achternaam'     => $data['achternaam'],
+                    'gebruikersnaam' => $data['email'],
+                    'opmerking'      => !empty($data['opmerking']) ? $data['opmerking'] : null,
+                    'gebruiker_id'   => $gebruikerId
+                ]);
+            }
+
+            // 2. Update Contactgegevens
+            $stmtCheckContact = $this->pdo->prepare("SELECT COUNT(*) FROM Contact WHERE GebruikerId = ? AND IsActief = 1");
+            $stmtCheckContact->execute([$gebruikerId]);
+            if ((int)$stmtCheckContact->fetchColumn() > 0) {
+                $stmtContact = $this->pdo->prepare("
+                    UPDATE Contact 
+                    SET Email = :email, Mobiel = :mobiel 
+                    WHERE GebruikerId = :gebruiker_id AND IsActief = 1
+                ");
+                $stmtContact->execute([
+                    'email'        => $data['email'],
+                    'mobiel'       => $data['mobiel'],
+                    'gebruiker_id' => $gebruikerId
+                ]);
+            } else {
+                $stmtContact = $this->pdo->prepare("
+                    INSERT INTO Contact (GebruikerId, Email, Mobiel, IsActief, Opmerking)
+                    VALUES (:gebruiker_id, :email, :mobiel, 1, NULL)
+                ");
+                $stmtContact->execute([
+                    'gebruiker_id' => $gebruikerId,
+                    'email'        => $data['email'],
+                    'mobiel'       => $data['mobiel']
+                ]);
+            }
+
+            // 3. Update Rol
+            $stmtCheckRol = $this->pdo->prepare("SELECT COUNT(*) FROM Rol WHERE GebruikerId = ? AND IsActief = 1");
+            $stmtCheckRol->execute([$gebruikerId]);
+            if ((int)$stmtCheckRol->fetchColumn() > 0) {
+                $stmtRol = $this->pdo->prepare("
+                    UPDATE Rol 
+                    SET Naam = :rol 
+                    WHERE GebruikerId = :gebruiker_id AND IsActief = 1
+                ");
+                $stmtRol->execute([
+                    'rol'          => $data['rol'],
+                    'gebruiker_id' => $gebruikerId
+                ]);
+            } else {
+                $stmtRol = $this->pdo->prepare("
+                    INSERT INTO Rol (GebruikerId, Naam, IsActief, Opmerking)
+                    VALUES (:gebruiker_id, :rol, 1, NULL)
+                ");
+                $stmtRol->execute([
+                    'gebruiker_id' => $gebruikerId,
+                    'rol'          => $data['rol']
+                ]);
+            }
+
+            // 4. Update Medewerker
+            $stmtMedewerker = $this->pdo->prepare("
+                UPDATE Medewerker 
+                SET Medewerkersoort = :medewerkersoort, Opmerking = :opmerking 
+                WHERE Id = :medewerker_id
+            ");
+            $stmtMedewerker->execute([
+                'medewerkersoort' => $data['medewerkersoort'],
+                'opmerking'       => !empty($data['opmerking']) ? $data['opmerking'] : null,
+                'medewerker_id'   => $medewerkerId
+            ]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
     }
 }
