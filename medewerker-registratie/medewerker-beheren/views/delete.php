@@ -19,7 +19,7 @@ $foutmelding = $foutmelding ?? '';
     <meta name="description" content="Medewerker verwijderen — Aurora beheerpaneel.">
     <title>Medewerker verwijderen — Aurora</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
 </head>
 <body>
 

@@ -1,8 +1,13 @@
 <?php
-/*
-  Auteur       : KadhimH
-  Beschrijving : Formulier voor het toevoegen van een nieuwe medewerker.
-*/
+$voornaam        = $voornaam ?? '';
+$tussenvoegsel   = $tussenvoegsel ?? '';
+$achternaam      = $achternaam ?? '';
+$email           = $email ?? '';
+$mobiel          = $mobiel ?? '';
+$medewerkersoort = $medewerkersoort ?? 'Beheerder';
+$rol             = $rol ?? 'Medewerker';
+$opmerking       = $opmerking ?? '';
+$fouten          = $fouten ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -13,7 +18,7 @@
     <meta name="description" content="Nieuwe medewerker toevoegen — Aurora beheerpaneel.">
     <title>Medewerker toevoegen — Aurora</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
 </head>
 <body>
 

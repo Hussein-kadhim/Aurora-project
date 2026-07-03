@@ -356,5 +356,39 @@ class MedewerkerModel {
             throw $e;
         }
     }
+
+    /**
+     * Verwijdert (archiveert/soft-deletes) een bestaande medewerker door IsActief = 0 te zetten.
+     * 
+     * @param int $medewerkerId
+     * @param int $gebruikerId
+     * @return bool True bij succes, anders false of werpt uitzondering
+     */
+    public function deleteMedewerker(int $medewerkerId, int $gebruikerId): bool {
+        $this->pdo->beginTransaction();
+        try {
+            // 1. Deactiveer Medewerker
+            $stmt1 = $this->pdo->prepare("UPDATE Medewerker SET IsActief = 0 WHERE Id = ?");
+            $stmt1->execute([$medewerkerId]);
+
+            // 2. Deactiveer Gebruiker
+            $stmt2 = $this->pdo->prepare("UPDATE Gebruiker SET IsActief = 0 WHERE Id = ?");
+            $stmt2->execute([$gebruikerId]);
+
+            // 3. Deactiveer Contact
+            $stmt3 = $this->pdo->prepare("UPDATE Contact SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt3->execute([$gebruikerId]);
+
+            // 4. Deactiveer Rol
+            $stmt4 = $this->pdo->prepare("UPDATE Rol SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt4->execute([$gebruikerId]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
 }
 

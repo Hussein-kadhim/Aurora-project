@@ -25,6 +25,8 @@ try {
         $controller->create();
     } elseif ($action === 'edit') {
         $controller->edit();
+    } elseif ($action === 'delete') {
+        $controller->delete();
     } else {
         $controller->index();
     }

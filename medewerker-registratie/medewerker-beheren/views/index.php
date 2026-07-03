@@ -14,7 +14,7 @@ $search      = $search ?? '';
     <meta name="description" content="Overzicht van alle geregistreerde medewerkers — Aurora beheerpaneel.">
     <title>Medewerker beheren — Aurora</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
 </head>
 <body>
 
@@ -149,7 +149,6 @@ $search      = $search ?? '';
                                 <tr>
                                     <th>Nr.</th>
                                     <th>Naam</th>
-                                    <th>E-mailadres</th>
                                     <th>Mobiel</th>
                                     <th>Soort</th>
                                     <th>Rol</th>
@@ -173,16 +172,7 @@ $search      = $search ?? '';
                                         #<?= (int)$m['MedewerkerNummer'] ?>
                                         <span class="full-name"><?= htmlspecialchars($m['Gebruikersnaam'] ?? '') ?></span>
                                     </td>
-                                    <td><?= htmlspecialchars($naam) ?></td>
-                                    <td>
-                                        <?php if (!empty($m['Email'])): ?>
-                                            <a href="mailto:<?= htmlspecialchars($m['Email']) ?>" style="color:#131313;text-decoration:none;opacity:0.7;">
-                                                <?= htmlspecialchars($m['Email']) ?>
-                                            </a>
-                                        <?php else: ?>
-                                            <span style="opacity:.4">—</span>
-                                        <?php endif; ?>
-                                    </td>
+                                    <td class="name-cell"><?= htmlspecialchars($naam) ?></td>
                                     <td><?= htmlspecialchars($m['Mobiel'] ?? '—') ?></td>
                                     <td class="soort-cell">
                                         <span class="soort-badge <?= htmlspecialchars($soortClass) ?>">
@@ -209,13 +199,13 @@ $search      = $search ?? '';
                                     </td>
                                     <td><?= htmlspecialchars($datum) ?></td>
                                     <td class="actions-cell">
-                                        <a href="#" class="action-btn btn-edit" title="Bewerken" onclick="alert('Bewerken is nog in ontwikkeling.'); return false;">
+                                        <a href="index.php?action=edit&id=<?= (int)$m['MedewerkerId'] ?>" class="action-btn btn-edit" title="Bewerken">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                             <span class="btn-text">Wijzigen</span>
                                         </a>
-                                        <a href="index.php?action=delete&id=<?= (int)$m['MedewerkerId'] ?>" class="action-btn btn-delete" title="Verwijderen">
+                                        <a href="#" class="action-btn btn-delete" title="Verwijderen" onclick="openDeleteModal(<?= (int)$m['MedewerkerId'] ?>, '<?= htmlspecialchars($m['Achternaam'], ENT_QUOTES, 'UTF-8') ?>'); return false;">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -329,6 +319,84 @@ $search      = $search ?? '';
                     successAlert.style.display = "none";
                 }, 500);
             }, 3000);
+        }
+    });
+    </script>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div id="deleteModal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-card">
+            <div class="custom-modal-header" style="border-bottom: 1px solid #E5D3B3; padding-bottom: 16px; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #131313;">Medewerker verwijderen</h3>
+            </div>
+            <div class="custom-modal-body">
+                <p style="font-size: 0.95rem; color: #131313; line-height: 1.5; margin-bottom: 16px;">Weet je dit zeker? Voer de achternaam <strong id="modalTargetName"></strong> in om het verwijderen te bevestigen.</p>
+                <div class="form-group" style="gap: 8px; margin-top: 16px;">
+                    <label for="confirmAchternaam" style="font-weight: 600; font-size: 0.9rem; color: #131313; display: block; margin-bottom: 8px;">Achternaam</label>
+                    <input type="text" id="confirmAchternaam" autocomplete="off" placeholder="Type achternaam..." style="width: 100%; padding: 12px 16px; border: 1px solid #E5D3B3; border-radius: 8px; background-color: #FFFFFF; color: #131313; font-size: 0.95rem; outline: none; transition: all 0.2s;">
+                </div>
+            </div>
+            <div class="custom-modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <button type="button" class="btn-secondary" onclick="closeDeleteModal()" style="padding: 10px 20px; font-size: 0.9rem; border: 1px solid #E5D3B3; border-radius: 8px; cursor: pointer;">Annuleren</button>
+                <button type="button" id="modalConfirmBtn" class="btn-primary" disabled style="padding: 10px 20px; font-size: 0.9rem; border-radius: 8px; cursor: pointer;">Verwijderen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden POST delete form -->
+    <form id="deleteForm" method="POST" action="index.php?action=delete" style="display: none;">
+        <input type="hidden" id="deleteFormId" name="id" value="">
+    </form>
+
+    <script>
+    let deleteTargetId = null;
+    let deleteTargetLastName = "";
+
+    function openDeleteModal(id, achternaam) {
+        deleteTargetId = id;
+        deleteTargetLastName = achternaam;
+        
+        document.getElementById('modalTargetName').textContent = achternaam;
+        const confirmInput = document.getElementById('confirmAchternaam');
+        confirmInput.value = "";
+        
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        confirmBtn.disabled = true;
+        
+        document.getElementById('deleteModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        confirmInput.focus();
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        document.body.style.overflow = '';
+        deleteTargetId = null;
+        deleteTargetLastName = "";
+    }
+
+    document.getElementById('confirmAchternaam').addEventListener('input', function(e) {
+        const typedValue = e.target.value.trim();
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        
+        if (typedValue.toLowerCase() === deleteTargetLastName.toLowerCase()) {
+            confirmBtn.disabled = false;
+        } else {
+            confirmBtn.disabled = true;
+        }
+    });
+
+    document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+        if (deleteTargetId && document.getElementById('confirmAchternaam').value.trim().toLowerCase() === deleteTargetLastName.toLowerCase()) {
+            document.getElementById('deleteFormId').value = deleteTargetId;
+            document.getElementById('deleteForm').submit();
+        }
+    });
+
+    // Close modal on click outside card
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
         }
     });
     </script>

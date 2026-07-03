@@ -340,4 +340,66 @@ class MedewerkerController {
 
         require_once __DIR__ . '/views/edit.php';
     }
+
+    /**
+     * Actie voor het verwijderen van een bestaande medewerker.
+     */
+    public function delete() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        // We checken of het via POST komt (bevestigd) of GET (toon bevestigingspagina)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+            if ($id <= 0) {
+                header('Location: index.php');
+                exit();
+            }
+
+            try {
+                $medewerker = $this->model->getMedewerkerById($id);
+                if (!$medewerker) {
+                    $_SESSION['error'] = 'De te verwijderen medewerker bestaat niet.';
+                    header('Location: index.php');
+                    exit();
+                }
+
+                $gebruikerId = (int)$medewerker['GebruikerId'];
+                
+                // Helper functie voor de volledige naam
+                if (!function_exists('volledigeNaam')) {
+                    function volledigeNaam(string $voornaam, ?string $tussenvoegsel, string $achternaam): string {
+                        $delen = array_filter([$voornaam, $tussenvoegsel, $achternaam]);
+                        return implode(' ', $delen);
+                    }
+                }
+                $naam = volledigeNaam($medewerker['Voornaam'], $medewerker['Tussenvoegsel'], $medewerker['Achternaam']);
+
+                $success = $this->model->deleteMedewerker($id, $gebruikerId);
+                if ($success) {
+                    $_SESSION['success'] = 'Medewerker ' . htmlspecialchars($naam) . ' is succesvol verwijderd.';
+                } else {
+                    $_SESSION['error'] = 'Er is een fout opgetreden bij het verwijderen van de medewerker.';
+                }
+            } catch (PDOException $e) {
+                $_SESSION['error'] = 'De server is momenteel niet bereikbaar.';
+            } catch (Throwable $e) {
+                $_SESSION['error'] = 'Er is iets fout gegaan bij het verwijderen.';
+            }
+
+            header('Location: index.php');
+            exit();
+        } else {
+            // GET request is niet toegestaan voor verwijderen, ga terug naar index
+            header('Location: index.php');
+            exit();
+        }
+    }
 }
