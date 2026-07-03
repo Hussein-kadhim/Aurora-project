@@ -11,7 +11,7 @@ $tickets = isset($tickets) ? $tickets : [];
     <meta name="theme-color" content="#D31027">
     <title>Ticketoverzicht — Aurora</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
@@ -129,7 +129,12 @@ $tickets = isset($tickets) ? $tickets : [];
                                             <span class="status-badge <?= $statusClass ?>"><?= $statusText ?></span>
                                         </td>
                                         <td style="text-align: right;" class="actions-cell">
-                                            <!-- Acties kolom is in desktop mockup leeg gelaten -->
+                                            <a href="wijzigen.php?id=<?= $row['Id'] ?>" class="action-btn btn-edit" title="Bewerken">
+                                                 <i class="fa-solid fa-pen-to-square"></i>
+                                             </a>
+                                             <a href="#" class="action-btn btn-delete" title="Verwijderen" onclick="alert('Verwijderen is nog in ontwikkeling.'); return false;">
+                                                 <i class="fa-solid fa-trash-can"></i>
+                                             </a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -181,9 +186,10 @@ $tickets = isset($tickets) ? $tickets : [];
                                         <?= htmlspecialchars(trim($row['BezoekerVoornaam'] . ' ' . ($row['BezoekerTussenvoegsel'] ?? '') . ' ' . $row['BezoekerAchternaam'])) ?>
                                     </span>
                                 </div>
-                                <div class="chevron-wrapper" style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
-                                    <i class="fa-solid fa-chevron-right" style="font-size: 16px; color: #131313; opacity: 0.6;"></i>
-                                </div>
+                            </div>
+                            <div class="ticket-card-actions">
+                                <a href="wijzigen.php?id=<?= $row['Id'] ?>" class="mobile-action-btn btn-edit">Wijzigen</a>
+                                <a href="#" class="mobile-action-btn btn-delete" onclick="alert('Verwijderen is nog in ontwikkeling.'); return false;">Verwijderen</a>
                             </div>
                         </div>
                     <?php endforeach; ?>

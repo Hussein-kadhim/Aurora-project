@@ -8,11 +8,12 @@ class TicketModel {
     }
 
     /**
-     * Haal alle actieve tickets op, optioneel gefilterd op zoekterm.
+     * Haal alle actieve tickets op, optioneel gefilterd op zoekterm en bezoeker.
      */
-    public function getAllTickets($search = '') {
+    public function getAllTickets($search = '', $gebruikerId = null, $rol = '') {
         $sql = "
             SELECT 
+                t.Id,
                 t.Nummer AS TicketNummer,
                 v.Naam AS VoorstellingNaam,
                 g.Voornaam AS BezoekerVoornaam,
@@ -26,6 +27,13 @@ class TicketModel {
             WHERE t.IsActief = 1
         ";
 
+        $params = [];
+
+        if ($rol === 'Bezoeker' && $gebruikerId !== null) {
+            $sql .= " AND g.Id = :gebruikerId";
+            $params[':gebruikerId'] = $gebruikerId;
+        }
+
         if ($search !== '') {
             $sql .= " AND (
                 t.Nummer LIKE :search 
@@ -34,14 +42,14 @@ class TicketModel {
                 OR g.Achternaam LIKE :search
                 OR CONCAT(g.Voornaam, ' ', IFNULL(g.Tussenvoegsel, ''), ' ', g.Achternaam) LIKE :search
             )";
+            $params[':search'] = '%' . $search . '%';
         }
 
         $sql .= " ORDER BY t.Nummer DESC";
 
         $stmt = $this->pdo->prepare($sql);
-
-        if ($search !== '') {
-            $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
         }
 
         $stmt->execute();
@@ -49,9 +57,19 @@ class TicketModel {
     }
 
     /**
-     * Haal het totale aantal actieve tickets op (zonder filter).
+     * Haal het totale aantal actieve tickets op (optioneel gefilterd).
      */
-    public function getTicketCount() {
+    public function getTicketCount($gebruikerId = null, $rol = '') {
+        if ($rol === 'Bezoeker' && $gebruikerId !== null) {
+            $stmt = $this->pdo->prepare("
+                SELECT COUNT(*) 
+                FROM Ticket t
+                JOIN Bezoeker b ON t.BezoekerId = b.Id
+                WHERE t.IsActief = 1 AND b.GebruikerId = ?
+            ");
+            $stmt->execute([$gebruikerId]);
+            return (int) $stmt->fetchColumn();
+        }
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM Ticket WHERE IsActief = 1");
         $stmt->execute();
         return (int) $stmt->fetchColumn();
@@ -244,6 +262,81 @@ class TicketModel {
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Haal een ticket op basis van Id op.
+     */
+    public function getTicketById($id) {
+        $sql = "
+            SELECT 
+                t.Id,
+                t.BezoekerId,
+                t.VoorstellingId,
+                t.PrijsId,
+                t.Nummer AS TicketNummer,
+                t.Barcode,
+                t.Status AS TicketStatus,
+                t.Opmerking,
+                v.Naam AS VoorstellingNaam,
+                v.Datum AS VoorstellingDatum,
+                v.Tijd AS VoorstellingTijd,
+                g.Voornaam AS BezoekerVoornaam,
+                g.Tussenvoegsel AS BezoekerTussenvoegsel,
+                g.Achternaam AS BezoekerAchternaam
+            FROM Ticket t
+            JOIN Bezoeker b ON t.BezoekerId = b.Id
+            JOIN Gebruiker g ON b.GebruikerId = g.Id
+            JOIN Voorstelling v ON t.VoorstellingId = v.Id
+            WHERE t.Id = :id AND t.IsActief = 1
+            LIMIT 1
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * Controleer of een GebruikerId eigenaar is van een ticket.
+     */
+    public function isTicketOwner($ticketId, $gebruikerId) {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) 
+            FROM Ticket t
+            JOIN Bezoeker b ON t.BezoekerId = b.Id
+            WHERE t.Id = :ticketId AND b.GebruikerId = :gebruikerId
+        ");
+        $stmt->execute([
+            ':ticketId' => $ticketId,
+            ':gebruikerId' => $gebruikerId
+        ]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Update ticketgegevens (VoorstellingId en Opmerking).
+     */
+    public function updateTicket($id, $voorstellingId, $opmerking) {
+        $stmt = $this->pdo->prepare("
+            UPDATE Ticket 
+            SET VoorstellingId = :voorstellingId, 
+                Opmerking = :opmerking 
+            WHERE Id = :id
+        ");
+        return $stmt->execute([
+            ':voorstellingId' => $voorstellingId,
+            ':opmerking' => $opmerking,
+            ':id' => $id
+        ]);
+    }
+
+    /**
+     * Deactiveer/verwijder een ticket (soft delete door IsActief = 0).
+     */
+    public function deleteTicket($id) {
+        $stmt = $this->pdo->prepare("UPDATE Ticket SET IsActief = 0 WHERE Id = ?");
+        return $stmt->execute([$id]);
     }
 }
 
