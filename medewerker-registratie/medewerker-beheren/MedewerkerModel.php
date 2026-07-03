@@ -176,5 +176,80 @@ class MedewerkerModel {
             throw $e;
         }
     }
+
+    /**
+     * Verwijdert (deactiveert) een medewerker onder een database-transactie.
+     * 
+     * @param int $medewerkerId
+     * @param int $gebruikerId
+     * @return bool True bij succes, anders false of werpt uitzondering
+     */
+    public function deleteMedewerker(int $medewerkerId, int $gebruikerId): bool {
+        $this->pdo->beginTransaction();
+        try {
+            // 1. Deactiveer Gebruiker
+            $stmtGebruiker = $this->pdo->prepare("UPDATE Gebruiker SET IsActief = 0 WHERE Id = ?");
+            $stmtGebruiker->execute([$gebruikerId]);
+
+            // 2. Deactiveer Contactgegevens
+            $stmtContact = $this->pdo->prepare("UPDATE Contact SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmtContact->execute([$gebruikerId]);
+
+            // 3. Deactiveer Rol
+            $stmtRol = $this->pdo->prepare("UPDATE Rol SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmtRol->execute([$gebruikerId]);
+
+            // 4. Deactiveer Medewerker
+            $stmtMedewerker = $this->pdo->prepare("UPDATE Medewerker SET IsActief = 0 WHERE Id = ?");
+            $stmtMedewerker->execute([$medewerkerId]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Haalt een specifieke actieve medewerker op basis van Medewerker Id.
+     * 
+     * @param int $id MedewerkerId
+     * @return array|false Medewerkergegevens of false bij niet gevonden
+     */
+    public function getMedewerkerById(int $id) {
+        $query = "
+            SELECT
+                m.Id                AS MedewerkerId,
+                m.GebruikerId,
+                m.Nummer            AS MedewerkerNummer,
+                m.Medewerkersoort,
+                m.IsActief          AS MedewerkerActief,
+                g.Voornaam,
+                g.Tussenvoegsel,
+                g.Achternaam,
+                g.Gebruikersnaam,
+                c.Email,
+                c.Mobiel,
+                r.Naam              AS Rol,
+                g.Opmerking
+            FROM medewerker m
+            JOIN gebruiker  g ON g.Id = m.GebruikerId
+            LEFT JOIN contact c ON c.GebruikerId = g.Id AND c.IsActief = 1
+            LEFT JOIN rol     r ON r.GebruikerId = g.Id AND r.IsActief = 1
+            WHERE m.Id = :id AND m.IsActief = 1
+        ";
+
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(['id' => $id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return false;
+        }
+    }
 }
 
