@@ -1,14 +1,10 @@
 <?php
-// Bestaande voorstelling wijzigen logica (nog in ontwikkeling)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-    // Wijzigingslogica of redirect naar een formulier hier
-    
-    // Redirect terug na wijziging
-    header('Location: ../voorstelling-beheren/index.php');
-    exit;
-} else {
-    // Redirect als deze pagina per ongeluk wordt bezocht zonder POST verzoek
-    header('Location: ../voorstelling-beheren/index.php');
-    exit;
-}
-?>
+// bestande-voorstelling-wijzigen/index.php
+
+// Inladen database configuratie (meestal in ../../config.php of ../../../config.php)
+// Aurora project gebruikt vaak $pdo object in de controller
+require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/BestaandeVoorstellingWijzigenController.php';
+
+$controller = new BestaandeVoorstellingWijzigenController($pdo);
+$controller->edit();
