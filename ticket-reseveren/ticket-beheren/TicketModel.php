@@ -335,7 +335,7 @@ class TicketModel {
      * Deactiveer/verwijder een ticket (soft delete door IsActief = 0).
      */
     public function deleteTicket($id) {
-        $stmt = $this->pdo->prepare("UPDATE Ticket SET IsActief = 0 WHERE Id = ?");
+        $stmt = $this->pdo->prepare("UPDATE Ticket SET Status = 'Geannuleerd' WHERE Id = ?");
         return $stmt->execute([$id]);
     }
 }
