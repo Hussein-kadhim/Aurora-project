@@ -184,13 +184,13 @@
                                     </td>
                                     <td><?= htmlspecialchars($aangemaakt) ?></td>
                                     <td style="text-align: right;" class="actions-cell">
-                                        <a href="#" class="action-btn btn-edit" title="Bewerken" onclick="alert('Bewerken is nog in ontwikkeling.'); return false;">
+                                        <a href="#" class="action-btn btn-edit" title="Bewerken" onclick="openEditModal(<?= (int)$v['Id'] ?>, '<?= htmlspecialchars(addslashes($v['Naam'])) ?>'); return false;">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                             <span class="btn-text">Wijzigen</span>
                                         </a>
-                                        <a href="#" class="action-btn btn-delete" title="Verwijderen" onclick="alert('Verwijderen is nog in ontwikkeling.'); return false;">
+                                        <a href="#" class="action-btn btn-delete" title="Verwijderen" onclick="openDeleteModal(<?= (int)$v['Id'] ?>, '<?= htmlspecialchars(addslashes($v['Naam'])) ?>'); return false;">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -234,6 +234,48 @@
 
         </div>
     </main>
+
+    <!-- Verwijder Modal Overlay -->
+    <div id="deleteModalOverlay" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <h3 class="modal-title">Voorstelling verwijderen</h3>
+            <p class="modal-text">Weet je dit zeker? Voer de naam <strong id="modalVoorstellingNaam"></strong> in om het verwijderen te bevestigen.</p>
+            
+            <div class="modal-input-group">
+                <label for="deleteNaamInput">Naam</label>
+                <input type="text" id="deleteNaamInput" placeholder="Type naam..." autocomplete="off">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary modal-btn" id="cancelDeleteBtn">Annuleren</button>
+                <form id="deleteForm" method="POST" action="../bestaande-voorstelling-verwijderen/index.php" style="margin:0;">
+                    <input type="hidden" name="id" id="deleteVoorstellingId">
+                    <button type="submit" class="btn-danger modal-btn" id="confirmDeleteBtn" disabled>Verwijderen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wijzig Modal Overlay -->
+    <div id="editModalOverlay" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <h3 class="modal-title">Voorstelling wijzigen</h3>
+            <p class="modal-text">Weet je dit zeker? Voer de naam <strong id="modalEditVoorstellingNaam"></strong> in om de wijziging te bevestigen.</p>
+            
+            <div class="modal-input-group">
+                <label for="editNaamInput">Naam</label>
+                <input type="text" id="editNaamInput" placeholder="Type naam..." autocomplete="off">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary modal-btn" id="cancelEditBtn">Annuleren</button>
+                <form id="editForm" method="POST" action="../bestaande-voorstelling-wijzigen/index.php" style="margin:0;">
+                    <input type="hidden" name="id" id="editVoorstellingId">
+                    <button type="submit" class="btn-danger modal-btn" id="confirmEditBtn" disabled>Wijzigen</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -291,6 +333,88 @@
                 searchInput.dispatchEvent(new Event("input"));
                 searchInput.focus();
             });
+        }
+    });
+
+    // Modal Logic
+    const deleteModal = document.getElementById('deleteModalOverlay');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const deleteNaamInput = document.getElementById('deleteNaamInput');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const deleteVoorstellingId = document.getElementById('deleteVoorstellingId');
+    const modalVoorstellingNaam = document.getElementById('modalVoorstellingNaam');
+    let currentExpectedName = '';
+
+    window.openDeleteModal = function(id, naam) {
+        currentExpectedName = naam;
+        deleteVoorstellingId.value = id;
+        modalVoorstellingNaam.textContent = naam;
+        deleteNaamInput.value = '';
+        confirmDeleteBtn.disabled = true;
+        deleteModal.style.display = 'flex';
+        setTimeout(() => deleteNaamInput.focus(), 100);
+    };
+
+    function closeDeleteModal() {
+        deleteModal.style.display = 'none';
+        currentExpectedName = '';
+        deleteNaamInput.value = '';
+    }
+
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+    deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+            closeDeleteModal();
+        }
+    });
+
+    deleteNaamInput.addEventListener('input', function() {
+        if (this.value.trim().toLowerCase() === currentExpectedName.trim().toLowerCase()) {
+            confirmDeleteBtn.disabled = false;
+        } else {
+            confirmDeleteBtn.disabled = true;
+        }
+    });
+
+    // Edit Modal Logic
+    const editModal = document.getElementById('editModalOverlay');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const editNaamInput = document.getElementById('editNaamInput');
+    const confirmEditBtn = document.getElementById('confirmEditBtn');
+    const editVoorstellingId = document.getElementById('editVoorstellingId');
+    const modalEditVoorstellingNaam = document.getElementById('modalEditVoorstellingNaam');
+    let currentEditExpectedName = '';
+
+    window.openEditModal = function(id, naam) {
+        currentEditExpectedName = naam;
+        editVoorstellingId.value = id;
+        modalEditVoorstellingNaam.textContent = naam;
+        editNaamInput.value = '';
+        confirmEditBtn.disabled = true;
+        editModal.style.display = 'flex';
+        setTimeout(() => editNaamInput.focus(), 100);
+    };
+
+    function closeEditModal() {
+        editModal.style.display = 'none';
+        currentEditExpectedName = '';
+        editNaamInput.value = '';
+    }
+
+    cancelEditBtn.addEventListener('click', closeEditModal);
+
+    editModal.addEventListener('click', function(e) {
+        if (e.target === editModal) {
+            closeEditModal();
+        }
+    });
+
+    editNaamInput.addEventListener('input', function() {
+        if (this.value.trim().toLowerCase() === currentEditExpectedName.trim().toLowerCase()) {
+            confirmEditBtn.disabled = false;
+        } else {
+            confirmEditBtn.disabled = true;
         }
     });
     </script>
