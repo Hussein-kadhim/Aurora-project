@@ -233,4 +233,70 @@ class MeldingController {
         // Laad de view
         require_once __DIR__ . '/views/nieuw.php';
     }
+
+    /**
+     * Actie voor het versturen van een bestaande melding.
+     * GET  → toon bevestigingspagina
+     * POST → verwerk het versturen en stel IsActief in op 0
+     */
+    public function verstuur() {
+        // 1. Sessie
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 2. Toegangscontrole
+        $rol = $_SESSION['rol'] ?? '';
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../includes/geen_toegang.php';
+            exit();
+        }
+
+        // 3. Melding-ID ophalen
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        if ($id <= 0) {
+            header('Location: meldingen.php');
+            exit();
+        }
+
+        $errors  = [];
+        $success = false;
+        $melding = null;
+
+        // 4. Haal de melding op (ook nodig voor de GET-view)
+        try {
+            $melding = $this->model->getMeldingById($id);
+        } catch (PDOException $e) {
+            $errors[] = 'Database is momenteel niet beschikbaar, uw melding kon niet worden opgeslagen. Probeer het later opnieuw.';
+        } catch (Throwable $e) {
+            $errors[] = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+        }
+
+        if (empty($errors) && $melding === null) {
+            // Melding bestaat niet → terug naar overzicht
+            header('Location: meldingen.php');
+            exit();
+        }
+
+        // 5. POST: verwerk het versturen
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($errors)) {
+            try {
+                $ok = $this->model->verstuurMelding($id);
+                if ($ok) {
+                    // Herlaad de melding zodat de view de bijgewerkte status toont
+                    $melding = $this->model->getMeldingById($id);
+                    $success = true;
+                } else {
+                    $errors[] = 'De melding kon niet worden verzonden. Mogelijk is de status al bijgewerkt.';
+                }
+            } catch (PDOException $e) {
+                $errors[] = 'Database is momenteel niet beschikbaar, uw melding kon niet worden opgeslagen. Probeer het later opnieuw.';
+            } catch (Throwable $e) {
+                $errors[] = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+            }
+        }
+
+        // 6. Laad de view
+        require_once __DIR__ . '/views/versturen.php';
+    }
 }
