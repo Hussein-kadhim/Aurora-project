@@ -24,6 +24,8 @@ try {
     $action = $_GET['action'] ?? 'index';
     if ($action === 'nieuw') {
         $controller->nieuw();
+    } elseif ($action === 'verstuur') {
+        $controller->verstuur();
     } else {
         $controller->index();
     }
