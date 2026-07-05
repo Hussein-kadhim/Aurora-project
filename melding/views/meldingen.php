@@ -207,6 +207,7 @@
                                             <a href="meldingen.php?action=verstuur&id=<?= (int) $row['Id'] ?>"
                                                class="action-btn action-btn-verstuur"
                                                title="Melding versturen"
+                                               aria-label="Melding <?= htmlspecialchars($row['Nummer']) ?> versturen"
                                                id="verstuur-btn-<?= (int) $row['Id'] ?>">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <line x1="22" y1="2" x2="11" y2="13"></line>
