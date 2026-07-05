@@ -236,8 +236,15 @@ class MeldingController {
 
     /**
      * Actie voor het versturen van een bestaande melding.
-     * GET  → toon bevestigingspagina
-     * POST → verwerk het versturen en stel IsActief in op 0
+     *
+     * Happy scenario:
+     *   - GET  → toon bevestigingspagina met meldingdetails
+     *   - POST → verwerk het versturen, stel IsActief in op 0 (status: Verzonden)
+     *            en toon de NOTIFICATIONS success-pagina
+     *
+     * Unhappy scenario:
+     *   - Database niet beschikbaar → foutmelding getoond, status ongewijzigd
+     *   - Melding bestaat niet      → redirect naar overzicht
      */
     public function verstuur() {
         // 1. Sessie
