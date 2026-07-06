@@ -24,6 +24,8 @@ try {
     $action = $_GET['action'] ?? ($_POST['action'] ?? 'index');
     if ($action === 'nieuw') {
         $controller->nieuw();
+    } elseif ($action === 'verstuur') {
+        $controller->verstuur();
     } elseif ($action === 'feedback') {
         $controller->feedback();
     } else {
