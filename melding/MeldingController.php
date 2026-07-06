@@ -42,6 +42,21 @@ class MeldingController {
         try {
             $totalFiltered = $this->model->countMeldingen($filterType, $filterStatus, $filterDate);
             $meldingen     = $this->model->getMeldingen($filterType, $filterStatus, $filterDate, $limit, $offset);
+
+            if (!empty($meldingen)) {
+                $meldingIds = array_column($meldingen, 'Id');
+                $allFeedback = $this->model->getFeedbackForMeldingen($meldingIds);
+                
+                $feedbackByMelding = [];
+                foreach ($allFeedback as $fb) {
+                    $feedbackByMelding[$fb['MeldingId']][] = $fb;
+                }
+                
+                foreach ($meldingen as &$m) {
+                    $m['feedback'] = $feedbackByMelding[$m['Id']] ?? [];
+                }
+                unset($m);
+            }
         } catch (PDOException $e) {
             $techError = true;
         } catch (Throwable $e) {
@@ -232,5 +247,39 @@ class MeldingController {
 
         // Laad de view
         require_once __DIR__ . '/views/nieuw.php';
+    }
+
+    /**
+     * Actie voor het opslaan van feedback op een melding.
+     */
+    public function feedback() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $meldingId = (int)($_POST['melding_id'] ?? 0);
+            $feedbackTekst = trim($_POST['feedback_tekst'] ?? '');
+            
+            // Haal gebruikerId uit sessie, of gebruik een test ID als bezoeker (aangezien de unhappy scenario eist dat we ingelogd zijn als bezoeker of we gebruiken gewoon de ingelogde gebruiker)
+            $gebruikerId = $_SESSION['gebruiker_id'] ?? 1; 
+
+            if ($meldingId > 0 && $feedbackTekst !== '') {
+                try {
+                    $this->model->saveFeedback($meldingId, $gebruikerId, $feedbackTekst);
+                    $_SESSION['success_message'] = 'Feedback succesvol opgeslagen.';
+                } catch (PDOException $e) {
+                    $_SESSION['error_message'] = 'Database is momenteel niet beschikbaar, uw feedback kon niet worden opgeslagen. Probeer het later opnieuw.';
+                } catch (Exception $e) {
+                    $_SESSION['error_message'] = $e->getMessage();
+                }
+            } else {
+                $_SESSION['error_message'] = 'Vul alle velden in om feedback te versturen.';
+            }
+        }
+        
+        // Redirect back to overview
+        header('Location: meldingen.php');
+        exit();
     }
 }
