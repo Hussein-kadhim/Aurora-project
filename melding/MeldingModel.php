@@ -268,4 +268,108 @@ class MeldingModel
             return false;
         }
     }
+
+    /**
+     * Zorg ervoor dat de MeldingFeedback tabel bestaat (dynamisch aangemaakt).
+     */
+    private function ensureFeedbackTableExists() {
+        $query = "CREATE TABLE IF NOT EXISTS MeldingFeedback (
+            Id INT AUTO_INCREMENT PRIMARY KEY,
+            MeldingId INT NOT NULL,
+            GebruikerId INT NOT NULL,
+            FeedbackTekst TEXT NOT NULL,
+            Rating INT DEFAULT 5,
+            DatumAangemaakt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (MeldingId) REFERENCES Melding(Id) ON DELETE CASCADE,
+            FOREIGN KEY (GebruikerId) REFERENCES Gebruiker(Id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;";
+        try {
+            $this->pdo->exec($query);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * Sla feedback op voor een specifieke melding.
+     */
+    public function saveFeedback($meldingId, $gebruikerId, $tekst) {
+        $this->ensureFeedbackTableExists();
+        
+        $query = "INSERT INTO MeldingFeedback (MeldingId, GebruikerId, FeedbackTekst) VALUES (:meldingId, :gebruikerId, :tekst)";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            return $stmt->execute([
+                'meldingId'   => $meldingId,
+                'gebruikerId' => $gebruikerId,
+                'tekst'       => $tekst
+            ]);
+        } catch (PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Haal feedback op voor een lijst met meldingsID's.
+     * @param array $meldingIds
+     * @return array
+     */
+    public function getFeedbackForMeldingen($meldingIds) {
+        if (empty($meldingIds)) return [];
+        
+        $this->ensureFeedbackTableExists();
+
+        $inQuery = implode(',', array_fill(0, count($meldingIds), '?'));
+        
+        $query = "
+            SELECT f.MeldingId, f.FeedbackTekst, f.DatumAangemaakt,
+                   g.Voornaam, g.Tussenvoegsel, g.Achternaam
+            FROM MeldingFeedback f
+            LEFT JOIN Gebruiker g ON f.GebruikerId = g.Id
+            WHERE f.MeldingId IN ($inQuery)
+            ORDER BY f.DatumAangemaakt ASC
+        ";
+
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array_values($meldingIds));
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return [];
+        }
+    }
+
+    /**
+     * Haal alle feedback op inclusief gerelateerde meldingsinformatie.
+     * @return array
+     */
+    public function getAllFeedback() {
+        $this->ensureFeedbackTableExists();
+        
+        $query = "
+            SELECT f.Id AS FeedbackId, f.FeedbackTekst, f.Rating, f.DatumAangemaakt,
+                   g.Voornaam, g.Tussenvoegsel, g.Achternaam,
+                   m.Id AS MeldingId, m.Bericht AS MeldingTitel
+            FROM MeldingFeedback f
+            LEFT JOIN Gebruiker g ON f.GebruikerId = g.Id
+            LEFT JOIN Melding m ON f.MeldingId = m.Id
+            ORDER BY f.DatumAangemaakt DESC
+        ";
+
+        try {
+            $stmt = $this->pdo->query($query);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return [];
+        }
+    }
+
 }

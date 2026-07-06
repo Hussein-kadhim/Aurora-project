@@ -37,6 +37,18 @@
                 <?php unset($_SESSION['success_message']); ?>
             <?php endif; ?>
 
+            <?php if (!empty($_SESSION['error_message'])): ?>
+                <div class="alert-error-banner" style="background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 16px; margin-bottom: 24px; border-radius: 4px; display: flex; align-items: center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; flex-shrink: 0; margin-right: 8px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span><?= htmlspecialchars($_SESSION['error_message']) ?></span>
+                </div>
+                <?php unset($_SESSION['error_message']); ?>
+            <?php endif; ?>
+
             <?php if ($techError): ?>
                 <!-- Unhappy Scenario: Technische fout -->
                 <div class="empty-state-card" role="alert">
@@ -214,6 +226,41 @@
                                                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                                                 </svg>
                                             </a>
+                                            <a href="#" class="action-btn" title="Feedback tonen/verbergen" onclick="toggleFeedback(<?= $row['Id'] ?>); return false;" style="margin-left: 8px;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr id="feedback-row-<?= $row['Id'] ?>" class="feedback-row" style="display: none;">
+                                        <td colspan="5" class="feedback-cell">
+                                            <div class="feedback-container">
+                                                <div class="feedback-title">Feedback op deze melding</div>
+                                                <?php if (!empty($row['feedback'])): ?>
+                                                    <ul class="feedback-list">
+                                                    <?php foreach ($row['feedback'] as $fb): ?>
+                                                        <li class="feedback-item">
+                                                            <div class="feedback-meta">
+                                                                <span class="feedback-author"><?= htmlspecialchars($fb['Voornaam'] . ' ' . $fb['Achternaam']) ?></span>
+                                                                <span>&bull;</span>
+                                                                <span><?= htmlspecialchars(MeldingController::formatDutchDate($fb['DatumAangemaakt'])) ?></span>
+                                                            </div>
+                                                            <div class="feedback-text"><?= htmlspecialchars($fb['FeedbackTekst']) ?></div>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                    </ul>
+                                                <?php else: ?>
+                                                    <div class="feedback-empty">Nog geen feedback ontvangen voor deze melding.</div>
+                                                <?php endif; ?>
+                                                
+                                                <form method="POST" action="meldingen.php" class="feedback-form-wrapper">
+                                                    <input type="hidden" name="action" value="feedback">
+                                                    <input type="hidden" name="melding_id" value="<?= $row['Id'] ?>">
+                                                    <input type="text" name="feedback_tekst" class="feedback-input" placeholder="Schrijf feedback..." required>
+                                                    <button type="submit" class="btn-feedback-submit">Versturen</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -330,6 +377,15 @@
             });
         }
     });
+
+    function toggleFeedback(id) {
+        const row = document.getElementById('feedback-row-' + id);
+        if (row.style.display === 'none' || row.style.display === '') {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    }
     </script>
 
 </body>
