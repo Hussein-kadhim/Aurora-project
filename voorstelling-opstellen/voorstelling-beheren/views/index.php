@@ -29,6 +29,27 @@
                 </div>
             </div>
 
+            <?php if (!empty($_GET['success_delete']) && $_GET['success_delete'] == 1): ?>
+                <div id="success-alert" class="alert alert-success" style="background-color: #ECFDF5; color: #065F46; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #10B981; transition: opacity 0.5s ease;">
+                    <strong>Gelukt!</strong> Voorstelling succesvol verwijderd.
+                </div>
+                <script>
+                    setTimeout(function() {
+                        const alertBox = document.getElementById('success-alert');
+                        if (alertBox) {
+                            alertBox.style.opacity = '0';
+                            setTimeout(() => alertBox.style.display = 'none', 500); // Wacht tot fade-out animatie klaar is
+                        }
+                    }, 3000); // 3 seconden zichtbaar
+                </script>
+            <?php endif; ?>
+
+            <?php if (!empty($_GET['error']) && $_GET['error'] === 'delete_failed'): ?>
+                <div id="error-alert" class="alert alert-danger" style="background-color: #FEE2E2; color: #B91C1C; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #EF4444; transition: opacity 0.5s ease;">
+                    <strong>Fout!</strong> Kon de voorstelling niet verwijderen. Probeer het later opnieuw.
+                </div>
+            <?php endif; ?>
+
             <?php if ($dbFout): ?>
                 <!-- Unhappy Scenario: Server niet bereikbaar -->
                 <div class="empty-state-card" role="alert">
@@ -190,7 +211,7 @@
                                             </svg>
                                             <span class="btn-text">Wijzigen</span>
                                         </a>
-                                        <a href="#" class="action-btn btn-delete" title="Verwijderen" onclick="alert('Verwijderen is nog in ontwikkeling.'); return false;">
+                                        <a href="#" class="action-btn btn-delete" title="Verwijderen" onclick="openDeleteModal(<?= (int)$v['Id'] ?>, '<?= htmlspecialchars($v['Naam'], ENT_QUOTES) ?>'); return false;">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -235,7 +256,55 @@
         </div>
     </main>
 
+    <!-- Verwijder Modal Overlay -->
+    <div id="deleteModalOverlay" class="modal-overlay" style="display:none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">Voorstelling verwijderen</h3>
+                <button type="button" class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Weet je zeker dat je de voorstelling <strong id="deleteModalNaam"></strong> wilt verwijderen?</p>
+                <p style="margin-top:8px; font-size:0.9rem; color:#6b7280;">Typ de naam van de voorstelling over om te bevestigen:</p>
+                <form method="post" action="../bestaande-voorstelling-verwijderen/index.php" id="deleteForm" style="margin-top:12px;">
+                    <input type="hidden" name="id" id="deleteModalId" value="">
+                    <input type="hidden" id="deleteModalNaamHidden" value="">
+                    <input type="text" id="deleteConfirmInput" class="form-input" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; margin-top: 8px;" placeholder="Naam voorstelling" autocomplete="off" onkeyup="checkDeleteConfirm()">
+                    <div class="modal-actions" style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
+                        <button type="button" class="btn-secondary" onclick="closeDeleteModal()">Annuleren</button>
+                        <button type="submit" class="btn-danger" id="deleteSubmitBtn" disabled>Verwijderen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+    function openDeleteModal(id, naam) {
+        document.getElementById('deleteModalId').value = id;
+        document.getElementById('deleteModalNaam').textContent = naam;
+        document.getElementById('deleteModalNaamHidden').value = naam;
+        document.getElementById('deleteConfirmInput').value = '';
+        document.getElementById('deleteSubmitBtn').disabled = true;
+        document.getElementById('deleteModalOverlay').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModalOverlay').style.display = 'none';
+    }
+
+    function checkDeleteConfirm() {
+        const input = document.getElementById('deleteConfirmInput').value.trim();
+        const target = document.getElementById('deleteModalNaamHidden').value.trim();
+        const btn = document.getElementById('deleteSubmitBtn');
+        
+        if (input === target && target !== "") {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById("searchInput");
         const searchForm  = document.getElementById("searchForm");
