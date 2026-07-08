@@ -120,4 +120,164 @@ class AccountController {
         // Laad de view
         require_once __DIR__ . '/views/create.php';
     }
+
+    /**
+     * Toont het formulier en verwerkt het wijzigen van een bestaand account.
+     */
+    public function edit() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$id) {
+            header('Location: index.php');
+            exit();
+        }
+
+        // Fetch the existing account details
+        try {
+            $account = $this->model->getAccountById($id);
+        } catch (PDOException $e) {
+            $account = null;
+        }
+
+        if (!$account) {
+            header('Location: index.php');
+            exit();
+        }
+
+        $error = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $voornaam       = trim($_POST['Voornaam'] ?? '');
+            $tussenvoegsel  = trim($_POST['Tussenvoegsel'] ?? '');
+            $achternaam     = trim($_POST['Achternaam'] ?? '');
+            $gebruikersnaam = trim($_POST['Gebruikersnaam'] ?? '');
+            $email          = trim($_POST['Email'] ?? '');
+            $mobiel         = trim($_POST['Mobiel'] ?? '');
+            $rol            = trim($_POST['Rol'] ?? '');
+            $wachtwoord     = $_POST['Wachtwoord'] ?? '';
+
+            // Validation: Check verplichte velden
+            if (empty($voornaam) || empty($achternaam) || empty($gebruikersnaam) || empty($email) || empty($mobiel) || empty($rol)) {
+                $error = 'Vul alle verplichte velden in.';
+            } else {
+                try {
+                    // Check if email is in use by another user
+                    if ($this->model->emailBestaatVoorAnder($email, $id)) {
+                        $error = 'e-mailadres is al ingebruik';
+                    } elseif ($this->model->gebruikersnaamBestaatVoorAnder($gebruikersnaam, $id)) {
+                        $error = 'Dit e-mailadres of deze gebruikersnaam is al in gebruik.';
+                    } else {
+                        $data = [
+                            'Voornaam'       => $voornaam,
+                            'Tussenvoegsel'  => $tussenvoegsel,
+                            'Achternaam'     => $achternaam,
+                            'Gebruikersnaam' => $gebruikersnaam,
+                            'Email'          => $email,
+                            'Mobiel'         => $mobiel,
+                            'Rol'            => $rol
+                        ];
+
+                        if (!empty($wachtwoord)) {
+                            $data['Wachtwoord'] = password_hash($wachtwoord, PASSWORD_DEFAULT);
+                        } else {
+                            $data['Wachtwoord'] = null;
+                        }
+
+                        // Update via Model
+                        $success = $this->model->updateAccount($id, $data);
+
+                        if ($success) {
+                            header('Location: index.php?success_edit=1');
+                            exit();
+                        } else {
+                            $error = 'Er is een fout opgetreden bij het opslaan van het account. Probeer het later nog eens.';
+                        }
+                    }
+                } catch (PDOException $e) {
+                    if ($e->getCode() == 23000 || strpos($e->getMessage(), '1062') !== false) {
+                        if (strpos($e->getMessage(), 'Email') !== false || strpos($e->getMessage(), 'Contact.Email') !== false) {
+                            $error = 'e-mailadres is al ingebruik';
+                        } else {
+                            $error = 'Dit e-mailadres of deze gebruikersnaam is al in gebruik.';
+                        }
+                    } else {
+                        $error = 'Er kon geen verbinding worden gemaakt met de database. Probeer het later nog eens.';
+                    }
+                } catch (Throwable $e) {
+                    $error = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+                }
+            }
+        }
+
+        // Laad de view
+        require_once __DIR__ . '/views/edit.php';
+    }
+
+    /**
+     * Verwerkt het verwijderen (archiveren) van een bestaand account.
+     */
+    public function delete() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd en Administrator is
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($_SESSION['rol']) || $_SESSION['rol'] !== 'Administrator') {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$id) {
+            header('Location: index.php');
+            exit();
+        }
+
+        // Check of account bestaat en actief is
+        try {
+            $account = $this->model->getAccountById($id);
+        } catch (PDOException $e) {
+            $account = null;
+        }
+
+        if (!$account) {
+            header('Location: index.php');
+            exit();
+        }
+
+        try {
+            // Controleer op actieve tickets
+            if ($this->model->hasActiveTickets($id)) {
+                header('Location: index.php?error_delete=1');
+                exit();
+            }
+
+            // Voer de soft-delete uit
+            $success = $this->model->deleteAccount($id);
+
+            if ($success) {
+                header('Location: index.php?success_delete=1');
+                exit();
+            } else {
+                header('Location: index.php?error_unknown=1');
+                exit();
+            }
+        } catch (PDOException $e) {
+            header('Location: index.php?error_unknown=1');
+            exit();
+        } catch (Throwable $e) {
+            header('Location: index.php?error_unknown=1');
+            exit();
+        }
+    }
 }
+

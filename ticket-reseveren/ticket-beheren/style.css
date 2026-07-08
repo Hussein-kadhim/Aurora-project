@@ -501,3 +501,182 @@ tr:hover td {
         display: flex;
     }
 }
+
+/* Actieknoppen */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background-color: transparent;
+    border: 1px solid #E5D3B3;
+    border-radius: 6px;
+    color: #131313;
+    opacity: 0.7;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.action-btn svg,
+.action-btn i {
+    width: 18px;
+    height: 18px;
+    font-size: 16px;
+}
+
+.action-btn .btn-text {
+    display: none;
+}
+
+.action-btn:hover {
+    opacity: 1;
+    color: #D31027;
+    border-color: #D31027;
+    background-color: rgba(211, 16, 39, 0.02);
+}
+
+.action-btn.btn-edit:hover {
+    color: #D31027;
+    border-color: #D31027;
+}
+
+.action-btn.btn-delete:hover {
+    color: #D31027;
+    border-color: #D31027;
+}
+
+/* Actions cell alignment */
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Mobiele kaart acties */
+.ticket-card-actions {
+    display: flex;
+    gap: 12px;
+    padding: 12px 20px;
+    border-top: 1px solid #F4EDE0;
+    background-color: #FFFFFF;
+}
+
+.ticket-card-actions .mobile-action-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.ticket-card-actions .mobile-action-btn.btn-edit {
+    border: 1px solid #131313;
+    color: #131313;
+    background-color: #FFFFFF;
+}
+
+.ticket-card-actions .mobile-action-btn.btn-edit:hover {
+    background-color: rgba(19, 19, 19, 0.03);
+}
+
+.ticket-card-actions .mobile-action-btn.btn-delete {
+    border: 1px solid #D31027;
+    color: #D31027;
+    background-color: #FFFFFF;
+}
+
+.ticket-card-actions .mobile-action-btn.btn-delete:hover {
+    background-color: rgba(211, 16, 39, 0.03);
+}
+
+/* Custom modal overlay styling */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Custom modal card styling */
+.custom-modal-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.custom-modal-header {
+    margin-bottom: 16px;
+}
+
+.custom-modal-header h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #131313;
+}
+
+.custom-modal-body {
+    margin-bottom: 20px;
+}
+
+.custom-modal-body p {
+    font-size: 0.95rem;
+    color: #131313;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.custom-modal-body label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #131313;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.custom-modal-body input {
+    width: 100%;
+    background-color: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #131313;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.custom-modal-body input:focus {
+    border-color: #D31027;
+}
+
+.custom-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Disabled buttons inside/outside modals */
+.btn-primary:disabled {
+    background-color: #E5D3B3 !important;
+    border-color: #E5D3B3 !important;
+    color: #8C7144 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}

@@ -2,7 +2,7 @@
 
 
 $host     = "localhost";
-$dbname   = "aurora";   
+$dbname   = "Aurora";   
 $user     = "root";
 $password = "";
 
