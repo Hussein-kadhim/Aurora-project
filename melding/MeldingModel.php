@@ -1,9 +1,11 @@
 <?php
 
-class MeldingModel {
+class MeldingModel
+{
     private $pdo;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo)
+    {
         $this->pdo = $pdo;
     }
 
@@ -17,8 +19,9 @@ class MeldingModel {
      * @param int    $offset      Startpositie voor paginering
      * @return array Lijst met meldingen
      */
-    public function getMeldingen($filterType = '', $filterStatus = '', $filterDate = '', $limit = 5, $offset = 0) {
-        $where  = ' WHERE 1=1';
+    public function getMeldingen($filterType = '', $filterStatus = '', $filterDate = '', $limit = 5, $offset = 0)
+    {
+        $where = ' WHERE 1=1';
         $params = [];
 
         if ($filterType !== '') {
@@ -65,7 +68,7 @@ class MeldingModel {
 
         try {
             $stmt = $this->pdo->prepare($query);
-            $stmt->bindValue(':limit',  $limit,  PDO::PARAM_INT);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             foreach ($params as $key => $val) {
                 $stmt->bindValue(':' . $key, $val);
@@ -88,8 +91,9 @@ class MeldingModel {
      * @param string $filterDate
      * @return int
      */
-    public function countMeldingen($filterType = '', $filterStatus = '', $filterDate = '') {
-        $where  = ' WHERE 1=1';
+    public function countMeldingen($filterType = '', $filterStatus = '', $filterDate = '')
+    {
+        $where = ' WHERE 1=1';
         $params = [];
 
         if ($filterType !== '') {
@@ -108,7 +112,7 @@ class MeldingModel {
         }
 
         $query = "SELECT COUNT(*) FROM Melding m $where";
- 
+
 
         try {
             $stmt = $this->pdo->prepare($query);
@@ -131,7 +135,8 @@ class MeldingModel {
      * @param int $gebruikerId
      * @return int|null
      */
-    public function getMedewerkerIdByGebruikerId($gebruikerId) {
+    public function getMedewerkerIdByGebruikerId($gebruikerId)
+    {
         try {
             $stmt = $this->pdo->prepare("SELECT Id FROM Medewerker WHERE GebruikerId = ? LIMIT 1");
             $stmt->execute([$gebruikerId]);
@@ -150,7 +155,8 @@ class MeldingModel {
      *
      * @return int
      */
-    public function getNextMeldingNummer() {
+    public function getNextMeldingNummer()
+    {
         try {
             $stmt = $this->pdo->query("SELECT MAX(Nummer) FROM Melding");
             $max = $stmt->fetchColumn();
@@ -173,7 +179,73 @@ class MeldingModel {
      * @param string   $opmerking
      * @return bool
      */
-    public function createMelding($medewerkerId, $type, $bericht, $isActief, $opmerking) {
+    /**
+     * Haal één melding op via zijn primaire sleutel.
+     *
+     * @param int $id
+     * @return array|null
+     */
+    public function getMeldingById(int $id): ?array
+    {
+        $query = "
+            SELECT
+                m.Id,
+                m.Nummer,
+                m.Type,
+                m.Bericht,
+                m.IsActief,
+                m.Opmerking,
+                m.DatumAangemaakt,
+                bg.Voornaam      AS BezoekerVoornaam,
+                bg.Tussenvoegsel AS BezoekerTussenvoegsel,
+                bg.Achternaam    AS BezoekerAchternaam,
+                mg.Voornaam      AS MedewerkerVoornaam,
+                mg.Tussenvoegsel AS MedewerkerTussenvoegsel,
+                mg.Achternaam    AS MedewerkerAchternaam
+            FROM Melding m
+            LEFT JOIN Bezoeker b   ON m.BezoekerId   = b.Id
+            LEFT JOIN Gebruiker bg ON b.GebruikerId   = bg.Id
+            LEFT JOIN Medewerker mw ON m.MedewerkerId = mw.Id
+            LEFT JOIN Gebruiker mg ON mw.GebruikerId  = mg.Id
+            WHERE m.Id = :id
+            LIMIT 1
+        ";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Markeer een melding als verzonden door IsActief op 0 te zetten.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function verstuurMelding(int $id): bool
+    {
+        $query = "UPDATE Melding SET IsActief = 0 WHERE Id = :id";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            return $stmt->execute([':id' => $id]) && $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return false;
+        }
+    }
+
+    public function createMelding($medewerkerId, $type, $bericht, $isActief, $opmerking)
+    {
         $nummer = $this->getNextMeldingNummer();
         $query = "
             INSERT INTO Melding (BezoekerId, MedewerkerId, Nummer, Type, Bericht, IsActief, Opmerking)
@@ -183,11 +255,11 @@ class MeldingModel {
             $stmt = $this->pdo->prepare($query);
             return $stmt->execute([
                 'medewerkerId' => $medewerkerId,
-                'nummer'       => $nummer,
-                'type'         => $type,
-                'bericht'      => $bericht,
-                'isActief'     => $isActief ? 1 : 0,
-                'opmerking'    => $opmerking !== '' ? $opmerking : null
+                'nummer' => $nummer,
+                'type' => $type,
+                'bericht' => $bericht,
+                'isActief' => $isActief ? 1 : 0,
+                'opmerking' => $opmerking !== '' ? $opmerking : null
             ]);
         } catch (PDOException $e) {
             if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
@@ -196,4 +268,108 @@ class MeldingModel {
             return false;
         }
     }
+
+    /**
+     * Zorg ervoor dat de MeldingFeedback tabel bestaat (dynamisch aangemaakt).
+     */
+    private function ensureFeedbackTableExists() {
+        $query = "CREATE TABLE IF NOT EXISTS MeldingFeedback (
+            Id INT AUTO_INCREMENT PRIMARY KEY,
+            MeldingId INT NOT NULL,
+            GebruikerId INT NOT NULL,
+            FeedbackTekst TEXT NOT NULL,
+            Rating INT DEFAULT 5,
+            DatumAangemaakt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (MeldingId) REFERENCES Melding(Id) ON DELETE CASCADE,
+            FOREIGN KEY (GebruikerId) REFERENCES Gebruiker(Id) ON DELETE CASCADE
+        ) ENGINE=InnoDB;";
+        try {
+            $this->pdo->exec($query);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * Sla feedback op voor een specifieke melding.
+     */
+    public function saveFeedback($meldingId, $gebruikerId, $tekst) {
+        $this->ensureFeedbackTableExists();
+        
+        $query = "INSERT INTO MeldingFeedback (MeldingId, GebruikerId, FeedbackTekst) VALUES (:meldingId, :gebruikerId, :tekst)";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            return $stmt->execute([
+                'meldingId'   => $meldingId,
+                'gebruikerId' => $gebruikerId,
+                'tekst'       => $tekst
+            ]);
+        } catch (PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Haal feedback op voor een lijst met meldingsID's.
+     * @param array $meldingIds
+     * @return array
+     */
+    public function getFeedbackForMeldingen($meldingIds) {
+        if (empty($meldingIds)) return [];
+        
+        $this->ensureFeedbackTableExists();
+
+        $inQuery = implode(',', array_fill(0, count($meldingIds), '?'));
+        
+        $query = "
+            SELECT f.MeldingId, f.FeedbackTekst, f.DatumAangemaakt,
+                   g.Voornaam, g.Tussenvoegsel, g.Achternaam
+            FROM MeldingFeedback f
+            LEFT JOIN Gebruiker g ON f.GebruikerId = g.Id
+            WHERE f.MeldingId IN ($inQuery)
+            ORDER BY f.DatumAangemaakt ASC
+        ";
+
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array_values($meldingIds));
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return [];
+        }
+    }
+
+    /**
+     * Haal alle feedback op inclusief gerelateerde meldingsinformatie.
+     * @return array
+     */
+    public function getAllFeedback() {
+        $this->ensureFeedbackTableExists();
+        
+        $query = "
+            SELECT f.Id AS FeedbackId, f.FeedbackTekst, f.Rating, f.DatumAangemaakt,
+                   g.Voornaam, g.Tussenvoegsel, g.Achternaam,
+                   m.Id AS MeldingId, m.Bericht AS MeldingTitel
+            FROM MeldingFeedback f
+            LEFT JOIN Gebruiker g ON f.GebruikerId = g.Id
+            LEFT JOIN Melding m ON f.MeldingId = m.Id
+            ORDER BY f.DatumAangemaakt DESC
+        ";
+
+        try {
+            $stmt = $this->pdo->query($query);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            if (defined('ALLOW_DB_FAILURE') && ALLOW_DB_FAILURE === true) {
+                throw $e;
+            }
+            return [];
+        }
+    }
+
 }

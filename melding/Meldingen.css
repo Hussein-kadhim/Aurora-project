@@ -1,5 +1,4 @@
-/* ============================================================
-   Meldingen.css — Meldingsoverzicht Aurora
+/* =====================================================   Meldingen.css — Meldingsoverzicht Aurora
    Gebaseerd op het medewerker-beheren design systeem
    ============================================================ */
 
@@ -724,8 +723,7 @@ tr:hover td {
     }
 }
 
-/* ============================================================
-   Nieuwe Melding Formulier Styles
+/* =====================================================   Nieuwe Melding Formulier Styles
    ============================================================ */
 
 .new-melding-container {
@@ -982,3 +980,617 @@ tr:hover td {
         grid-template-columns: 1fr;
     }
 }
+
+/* =====================================================   Verzonden Status Badge
+   ============================================================ */
+
+.status-verzonden {
+    color: #1e6b3a;
+    background-color: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-verzonden .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #10b981;
+    flex-shrink: 0;
+}
+
+/* =====================================================   Versturen knop stijl in de actiekolom
+   ============================================================ */
+
+.action-btn-verstuur {
+    background: none;
+    border: 1px solid transparent;
+    color: #131313;
+    opacity: 0.7;
+    transition: opacity 0.2s, color 0.2s;
+}
+
+.action-btn-verstuur:hover {
+    opacity: 1;
+    color: #D31027;
+    border-color: rgba(211, 16, 39, 0.15);
+    background-color: rgba(211, 16, 39, 0.04);
+}
+
+/* Geen hover-state op touch-apparaten (voorkomt plakkerig effect op mobiel) */
+@media (hover: none) {
+    .action-btn-verstuur:hover {
+        opacity: 0.7;
+        color: #131313;
+        border-color: transparent;
+        background-color: transparent;
+    }
+}
+
+/* =====================================================   Melding Versturen — Preview Card
+   ============================================================ */
+
+.verstuur-preview-card {
+    border: 1px solid #E5D3B3;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.verstuur-preview-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(229, 211, 179, 0.5);
+}
+
+.verstuur-preview-row:last-child {
+    border-bottom: none;
+}
+
+.verstuur-preview-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #131313;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    min-width: 110px;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.verstuur-preview-value {
+    font-size: 0.92rem;
+    color: #131313;
+    flex: 1;
+    line-height: 1.5;
+}
+
+.verstuur-opmerking {
+    opacity: 0.65;
+    font-style: italic;
+}
+
+/* =====================================================   Versturen — Informatietekst
+   ============================================================ */
+
+.verstuur-info-text {
+    font-size: 0.88rem;
+    color: #131313;
+    opacity: 0.7;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+/* =====================================================   Afzender rol label (klein grijs label achter de naam)
+   ============================================================ */
+
+.verstuur-afzender-rol {
+    font-size: 0.78rem;
+    color: #131313;
+    opacity: 0.45;
+    margin-left: 4px;
+}
+
+/* =====================================================   Bestemming icoon (👥 emoji uitlijning)
+   ============================================================ */
+
+.verstuur-bestemming-icon {
+    font-size: 0.95rem;
+    margin-right: 4px;
+}
+
+/* =====================================================   Waarschuwing / info blok vóór de verstuur-knop
+   ============================================================ */
+
+.verstuur-warning-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background-color: rgba(234, 179, 8, 0.07);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    border-left: 4px solid #ca8a04;
+    color: #854d0e;
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.verstuur-warning-block svg {
+    color: #ca8a04;
+    flex-shrink: 0;
+}
+
+.verstuur-warning-block p {
+    margin: 0;
+}
+
+/* =====================================================   Al verzonden — melding
+   ============================================================ */
+
+.verstuur-already-sent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #065f46;
+    padding: 16px 20px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+/* =====================================================   Versturen bevestigings-knop variant
+   ============================================================ */
+
+.btn-verstuur-confirm {
+    background-color: #D31027;
+    color: #FFFFFF;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-verstuur-confirm:hover {
+    background-color: #b50e21;
+}
+
+.btn-verstuur-confirm:active {
+    transform: scale(0.99);
+}
+
+/* =====================================================   NOTIFICATIONS — Success pagina (na succesvol versturen)
+   ============================================================ */
+
+.notif-page {
+    max-width: 520px;
+    margin: 40px auto;
+    background: #FFFFFF;
+    border: 1px solid #E5D3B3;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 32px rgba(19,19,19,0.07);
+}
+
+/* -- Top bar -- */
+.notif-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid #E5D3B3;
+    background: #FFFFFF;
+}
+
+.notif-topbar-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #131313;
+    text-transform: uppercase;
+}
+
+.notif-back-btn,
+.notif-menu-btn {
+    background: none;
+    border: none;
+    color: #131313;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+
+.notif-back-btn:hover,
+.notif-menu-btn:hover {
+    opacity: 1;
+}
+
+/* -- Hero (check + title) -- */
+.notif-hero {
+    padding: 36px 28px 20px;
+    text-align: center;
+    background: #FFFFFF;
+}
+
+.notif-check-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #131313;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 16px rgba(19,19,19,0.18);
+}
+
+.notif-hero-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #131313;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.notif-hero-sub {
+    font-size: 0.85rem;
+    color: #c68b2e;
+    font-weight: 500;
+}
+
+/* -- Status kaart -- */
+.notif-card {
+    margin: 0 20px 20px;
+    border: 1px solid #E5D3B3;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.notif-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #fafafa;
+    border-bottom: 1px solid #E5D3B3;
+}
+
+.notif-card-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #131313;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.55;
+}
+
+.notif-badge-verzonden {
+    background: #131313;
+    color: #FFFFFF;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.notif-card-body {
+    padding: 0;
+}
+
+.notif-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(229,211,179,0.45);
+}
+
+.notif-field:last-child {
+    border-bottom: none;
+}
+
+.notif-field-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #131313;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    opacity: 0.45;
+}
+
+.notif-field-value {
+    font-size: 0.88rem;
+    color: #131313;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.notif-ref {
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 0.3px;
+}
+
+.notif-highlight {
+    color: #c68b2e;
+    font-weight: 600;
+}
+
+/* -- Actie knoppen -- */
+.notif-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 20px 24px;
+}
+
+.notif-btn {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.notif-btn-primary {
+    background: #131313;
+    color: #c68b2e;
+    border: 2px solid #131313;
+}
+
+.notif-btn-primary:hover {
+    background: #2b2b2b;
+    border-color: #2b2b2b;
+}
+
+.notif-btn-outline {
+    background: #FFFFFF;
+    color: #131313;
+    border: 2px solid #131313;
+}
+
+.notif-btn-outline:hover {
+    background: rgba(19,19,19,0.04);
+}
+
+.notif-btn:active {
+    transform: scale(0.99);
+}
+
+/* =====================================================   NOTIFICATIONS — Responsief (telefoon)
+   ============================================================ */
+
+/* Tablet: iets minder marge */
+@media (max-width: 640px) {
+    .notif-page {
+        margin: 20px 12px;
+        border-radius: 10px;
+    }
+}
+
+/* Telefoon: volledig schermbreed, geen afrondingen aan de zijkanten */
+@media (max-width: 480px) {
+    .notif-page {
+        margin: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .notif-topbar {
+        padding: 14px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #FFFFFF;
+    }
+
+    .notif-topbar-title {
+        font-size: 0.75rem;
+        letter-spacing: 1.2px;
+    }
+
+    .notif-hero {
+        padding: 28px 20px 16px;
+    }
+
+    .notif-check-circle {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 16px;
+    }
+
+    .notif-hero-title {
+        font-size: 1.05rem;
+        letter-spacing: 0.2px;
+    }
+
+    .notif-hero-sub {
+        font-size: 0.83rem;
+        line-height: 1.5;
+    }
+
+    .notif-card {
+        margin: 0 12px 16px;
+        border-radius: 6px;
+    }
+
+    .notif-card-header {
+        padding: 10px 14px;
+    }
+
+    .notif-card-label {
+        font-size: 0.63rem;
+    }
+
+    .notif-badge-verzonden {
+        font-size: 0.62rem;
+        padding: 4px 9px;
+    }
+
+    .notif-field {
+        padding: 12px 14px;
+        gap: 4px;
+    }
+
+    .notif-field-label {
+        font-size: 0.6rem;
+        letter-spacing: 0.8px;
+    }
+
+    .notif-field-value {
+        font-size: 0.87rem;
+    }
+
+    .notif-ref {
+        font-size: 0.9rem;
+    }
+
+    /* Knoppen: groter raakoppervlak */
+    .notif-actions {
+        padding: 0 12px 32px;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .notif-btn {
+        padding: 17px 20px;
+        font-size: 0.7rem;
+        letter-spacing: 1.3px;
+        border-radius: 4px;
+    }
+/* Feedback UI */
+.feedback-row {
+    background-color: #FAFAFA;
+    border-bottom: 1px solid #EAEAEA;
+    transition: all 0.3s ease;
+}
+
+.feedback-cell {
+    padding: 0;
+}
+
+.feedback-container {
+    padding: 24px;
+    border-left: 3px solid #131313;
+}
+
+.feedback-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    color: #131313;
+}
+
+.feedback-list {
+    list-style: none;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.feedback-item {
+    background-color: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    padding: 16px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.feedback-meta {
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.feedback-author {
+    font-weight: 600;
+    color: #131313;
+}
+
+.feedback-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.feedback-empty {
+    font-size: 0.9rem;
+    color: #888;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+.feedback-form-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.feedback-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.feedback-input:focus {
+    border-color: #131313;
+}
+
+.btn-feedback-submit {
+    background-color: #131313;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-feedback-submit:hover {
+    background-color: #333333;
+}
+
