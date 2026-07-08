@@ -1,9 +1,9 @@
 <?php
 
 
-$host = "localhost";
-$dbname = "aurora";
-$user = "root";
+$host     = "localhost";
+$dbname   = "Aurora";   
+$user     = "root";
 $password = "";
 
 $options = [

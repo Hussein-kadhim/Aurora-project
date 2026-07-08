@@ -26,10 +26,11 @@ class AccountModel {
                 r.Naam AS RolNaam
             FROM Gebruiker g
             LEFT JOIN Rol r ON g.Id = r.GebruikerId AND r.IsActief = 1
+            WHERE g.IsActief = 1
         ";
 
         if ($search !== '') {
-            $query .= " WHERE g.Gebruikersnaam LIKE :search";
+            $query .= " AND g.Gebruikersnaam LIKE :search";
         }
 
         $query .= " ORDER BY g.Id ASC";
@@ -49,7 +50,7 @@ class AccountModel {
      * @return int Aantal accounts
      */
     public function getAccountCount() {
-        $stmt = $this->pdo->query("SELECT COUNT(*) FROM Gebruiker");
+        $stmt = $this->pdo->query("SELECT COUNT(*) FROM Gebruiker WHERE IsActief = 1");
         return (int) $stmt->fetchColumn();
     }
 
@@ -127,4 +128,207 @@ class AccountModel {
         ]);
         return $stmt->fetchColumn() > 0;
     }
+
+    /**
+     * Haalt een specifiek account op bij ID.
+     * 
+     * @param int $id
+     * @return array|null
+     */
+    public function getAccountById($id) {
+        $query = "
+            SELECT 
+                g.Id,
+                g.Voornaam,
+                g.Tussenvoegsel,
+                g.Achternaam,
+                g.Gebruikersnaam,
+                g.IsActief,
+                g.IsIngelogd,
+                r.Naam AS RolNaam,
+                c.Email,
+                c.Mobiel
+            FROM Gebruiker g
+            LEFT JOIN Rol r ON g.Id = r.GebruikerId AND r.IsActief = 1
+            LEFT JOIN Contact c ON g.Id = c.GebruikerId AND c.IsActief = 1
+            WHERE g.Id = :id
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * Update een bestaand account.
+     * 
+     * @param int $id
+     * @param array $data
+     * @return bool
+     */
+    public function updateAccount($id, array $data) {
+        $this->pdo->beginTransaction();
+
+        try {
+            // 1. Gebruiker bijwerken
+            if (!empty($data['Wachtwoord'])) {
+                $stmtGebruiker = $this->pdo->prepare("
+                    UPDATE Gebruiker 
+                    SET Voornaam = :voornaam, 
+                        Tussenvoegsel = :tussenvoegsel, 
+                        Achternaam = :achternaam, 
+                        Gebruikersnaam = :gebruikersnaam,
+                        Wachtwoord = :wachtwoord
+                    WHERE Id = :id
+                ");
+                $stmtGebruiker->execute([
+                    'voornaam'       => $data['Voornaam'],
+                    'tussenvoegsel'  => empty($data['Tussenvoegsel']) ? null : $data['Tussenvoegsel'],
+                    'achternaam'     => $data['Achternaam'],
+                    'gebruikersnaam' => $data['Gebruikersnaam'],
+                    'wachtwoord'     => $data['Wachtwoord'],
+                    'id'             => $id
+                ]);
+            } else {
+                $stmtGebruiker = $this->pdo->prepare("
+                    UPDATE Gebruiker 
+                    SET Voornaam = :voornaam, 
+                        Tussenvoegsel = :tussenvoegsel, 
+                        Achternaam = :achternaam, 
+                        Gebruikersnaam = :gebruikersnaam
+                    WHERE Id = :id
+                ");
+                $stmtGebruiker->execute([
+                    'voornaam'       => $data['Voornaam'],
+                    'tussenvoegsel'  => empty($data['Tussenvoegsel']) ? null : $data['Tussenvoegsel'],
+                    'achternaam'     => $data['Achternaam'],
+                    'gebruikersnaam' => $data['Gebruikersnaam'],
+                    'id'             => $id
+                ]);
+            }
+
+            // 2. Rol bijwerken
+            $stmtRol = $this->pdo->prepare("
+                UPDATE Rol 
+                SET Naam = :naam 
+                WHERE GebruikerId = :gebruikerId AND IsActief = 1
+            ");
+            $stmtRol->execute([
+                'gebruikerId' => $id,
+                'naam'        => $data['Rol']
+            ]);
+
+            // 3. Contact bijwerken
+            $stmtContact = $this->pdo->prepare("
+                UPDATE Contact 
+                SET Email = :email, 
+                    Mobiel = :mobiel 
+                WHERE GebruikerId = :gebruikerId AND IsActief = 1
+            ");
+            $stmtContact->execute([
+                'gebruikerId' => $id,
+                'email'       => $data['Email'],
+                'mobiel'      => $data['Mobiel']
+            ]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Controleert of een e-mailadres al in gebruik is door een ander account.
+     * 
+     * @param string $email
+     * @param int $id
+     * @return bool
+     */
+    public function emailBestaatVoorAnder($email, $id) {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) 
+            FROM Contact 
+            WHERE Email = :email AND GebruikerId != :id
+        ");
+        $stmt->execute([
+            'email' => $email,
+            'id'    => $id
+        ]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Controleert of een gebruikersnaam al in gebruik is door een ander account.
+     * 
+     * @param string $gebruikersnaam
+     * @param int $id
+     * @return bool
+     */
+    public function gebruikersnaamBestaatVoorAnder($gebruikersnaam, $id) {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) 
+            FROM Gebruiker 
+            WHERE Gebruikersnaam = :gebruikersnaam AND Id != :id
+        ");
+        $stmt->execute([
+            'gebruikersnaam' => $gebruikersnaam,
+            'id'             => $id
+        ]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Controleert of een gebruiker actieve tickets heeft.
+     * 
+     * @param int $gebruikerId
+     * @return bool
+     */
+    public function hasActiveTickets($gebruikerId) {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) 
+            FROM Ticket t
+            JOIN Bezoeker b ON t.BezoekerId = b.Id
+            WHERE b.GebruikerId = :gebruikerId 
+              AND t.IsActief = 1 
+              AND t.Status != 'Geannuleerd'
+        ");
+        $stmt->execute(['gebruikerId' => $gebruikerId]);
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Verwijdert (archiveert) een account door IsActief op 0 te zetten.
+     * 
+     * @param int $id
+     * @return bool
+     */
+    public function deleteAccount($id) {
+        $this->pdo->beginTransaction();
+
+        try {
+            // Set IsActief = 0 in Gebruiker, Rol, Contact, and also Bezoeker/Medewerker if they exist
+            $stmt1 = $this->pdo->prepare("UPDATE Gebruiker SET IsActief = 0 WHERE Id = ?");
+            $stmt1->execute([$id]);
+
+            $stmt2 = $this->pdo->prepare("UPDATE Rol SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt2->execute([$id]);
+
+            $stmt3 = $this->pdo->prepare("UPDATE Contact SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt3->execute([$id]);
+
+            $stmt4 = $this->pdo->prepare("UPDATE Bezoeker SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt4->execute([$id]);
+
+            $stmt5 = $this->pdo->prepare("UPDATE Medewerker SET IsActief = 0 WHERE GebruikerId = ?");
+            $stmt5->execute([$id]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
 }
+

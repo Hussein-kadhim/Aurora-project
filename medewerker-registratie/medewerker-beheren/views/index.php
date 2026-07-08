@@ -1,4 +1,9 @@
 <?php
+$dbFout      = $dbFout ?? false;
+$foutmelding = $foutmelding ?? '';
+$medewerkers = $medewerkers ?? [];
+$totalCount  = $totalCount ?? 0;
+$search      = $search ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -36,6 +41,16 @@
                     <span><?= htmlspecialchars($_SESSION['success']) ?></span>
                 </div>
                 <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <?php if (!empty($_SESSION['error'])): ?>
+                <div class="alert alert-danger" role="alert">
+                    <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px; flex-shrink: 0; color: #D31027;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span><?= htmlspecialchars($_SESSION['error']) ?></span>
+                </div>
+                <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
 
             <?php if ($dbFout): ?>
@@ -200,7 +215,7 @@
                                             </svg>
                                             <span class="btn-text">Wijzigen</span>
                                         </a>
-                                        <a href="#" class="action-btn btn-delete" title="Verwijderen" onclick="alert('Verwijderen is nog in ontwikkeling.'); return false;">
+                                        <a href="index.php?action=delete&id=<?= (int)$m['MedewerkerId'] ?>" class="action-btn btn-delete" title="Verwijderen">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -302,6 +317,18 @@
                 searchInput.dispatchEvent(new Event("input"));
                 searchInput.focus();
             });
+        }
+
+        // Succesmelding na 3 seconden verbergen
+        const successAlert = document.querySelector(".alert-success");
+        if (successAlert) {
+            setTimeout(function() {
+                successAlert.style.transition = "opacity 0.5s ease";
+                successAlert.style.opacity = "0";
+                setTimeout(function() {
+                    successAlert.style.display = "none";
+                }, 500);
+            }, 3000);
         }
     });
     </script>

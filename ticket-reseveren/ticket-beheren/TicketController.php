@@ -18,12 +18,14 @@ class TicketController {
             session_start();
         }
 
-        // 1. Controleer of de gebruiker is ingelogd en toegang heeft (Administrator of Medewerker)
+        // 1. Controleer of de gebruiker is ingelogd en toegang heeft
         $rol = $_SESSION['rol'] ?? '';
-        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || empty($rol)) {
             require_once __DIR__ . '/../../includes/geen_toegang.php';
             exit();
         }
+
+        $gebruikerId = (int) $_SESSION['gebruiker_id'];
 
         // 3. Haal zoekopdracht op
         $search = trim($_GET['search'] ?? '');
@@ -32,8 +34,8 @@ class TicketController {
         $tickets = [];
         $totalCount = 0;
         try {
-            $tickets = $this->model->getAllTickets($search);
-            $totalCount = $this->model->getTicketCount();
+            $tickets = $this->model->getAllTickets($search, $gebruikerId, $rol);
+            $totalCount = $this->model->getTicketCount($gebruikerId, $rol);
         } catch (PDOException $e) {
             // Behandel database-fouten (zoals geen geselecteerde database of ontbrekende tabellen)
             // door terug te vallen op een lege status (unhappy scenario)
@@ -177,6 +179,176 @@ class TicketController {
 
         // Laad de view
         require_once __DIR__ . '/views/reserveren.php';
+    }
+
+    /**
+     * Ticket wijzigen pagina.
+     */
+    public function edit() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        $gebruikerId = (int)$_SESSION['gebruiker_id'];
+        $rol = $_SESSION['rol'] ?? '';
+        $ticketId = (int)($_GET['id'] ?? 0);
+
+        if ($ticketId <= 0) {
+            header('Location: index.php');
+            exit();
+        }
+
+        // 2. Haal ticket op
+        $ticket = $this->model->getTicketById($ticketId);
+        if (!$ticket) {
+            header('Location: index.php');
+            exit();
+        }
+
+        // 3. Toegangscontrole: Een bezoeker mag alleen zijn eigen tickets wijzigen
+        if ($rol === 'Bezoeker' && !$this->model->isTicketOwner($ticketId, $gebruikerId)) {
+            require_once __DIR__ . '/../../includes/geen_toegang.php';
+            exit();
+        }
+
+        $errorMessage = '';
+        $successMessage = '';
+        $voorstellingen = [];
+
+        try {
+            $voorstellingen = $this->model->getActiveVoorstellingen();
+        } catch (PDOException $e) {
+            $errorMessage = 'Fout bij het ophalen van voorstellingen.';
+        }
+
+        // 4. Verwerk het POST-verzoek (opslaan)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $voorstellingId = (int)($_POST['voorstelling_id'] ?? 0);
+            $opmerking = trim($_POST['opmerking'] ?? '');
+
+            // Unhappy scenario: Controleer of het ticket al is gebruikt
+            $status = strtolower($ticket['TicketStatus']);
+            if ($status === 'gebruikt' || $status === 'bezet') {
+                $errorMessage = 'Gebruikt ticket kan niet worden gewijzigd';
+            } elseif ($voorstellingId <= 0) {
+                $errorMessage = 'Selecteer een geldige voorstelling.';
+            } else {
+                try {
+                    // Sla de wijziging op
+                    $this->model->updateTicket($ticketId, $voorstellingId, $opmerking);
+                    
+                    // Update het lokale ticket object voor weergave
+                    $ticket = $this->model->getTicketById($ticketId);
+                    $successMessage = 'Ticket succesvol gewijzigd';
+                } catch (PDOException $e) {
+                    $errorMessage = 'Er is een databasefout opgetreden bij het bijwerken van het ticket.';
+                }
+            }
+        }
+
+        // Laad de view
+        require_once __DIR__ . '/views/edit.php';
+    }
+
+    /**
+     * Ticket verwijderen actie.
+     */
+    public function delete() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 1. Controleer of de gebruiker is ingelogd
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id'])) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Niet ingelogd']);
+            } else {
+                header('Location: index.php');
+            }
+            exit();
+        }
+
+        $gebruikerId = (int)$_SESSION['gebruiker_id'];
+        $rol = $_SESSION['rol'] ?? '';
+
+        // Haal ticket ID op
+        $ticketId = 0;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ticketId = (int)($_POST['id'] ?? 0);
+        } else {
+            $ticketId = (int)($_GET['id'] ?? 0);
+        }
+
+        if ($ticketId <= 0) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Ongeldig ticket ID']);
+            } else {
+                header('Location: index.php');
+            }
+            exit();
+        }
+
+        // Controleer of de bezoeker eigenaar is van het ticket
+        if ($rol === 'Bezoeker' && !$this->model->isTicketOwner($ticketId, $gebruikerId)) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Geen toegang']);
+            } else {
+                header('Location: index.php?error_delete=1');
+            }
+            exit();
+        }
+
+        // Haal ticket op
+        $ticket = $this->model->getTicketById($ticketId);
+        if (!$ticket) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Ticket niet gevonden']);
+            } else {
+                header('Location: index.php');
+            }
+            exit();
+        }
+
+        // Controleer of het ticket gebruikt is of al geannuleerd is
+        $status = strtolower($ticket['TicketStatus']);
+        if ($status === 'gebruikt' || $status === 'bezet' || $status === 'geannuleerd') {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Ticket kan niet worden geannuleerd']);
+            } else {
+                header('Location: index.php?error_delete=1');
+            }
+            exit();
+        }
+
+        try {
+            $this->model->deleteTicket($ticketId);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true]);
+            } else {
+                header('Location: index.php?success_delete=1');
+            }
+            exit();
+        } catch (PDOException $e) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Databasefout']);
+            } else {
+                header('Location: index.php?error_delete=1');
+            }
+            exit();
+        }
     }
 }
 
