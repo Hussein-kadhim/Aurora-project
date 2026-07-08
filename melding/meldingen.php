@@ -21,9 +21,13 @@ try {
     // Start de controller
     $controller = new MeldingController($pdo);
 
-    $action = $_GET['action'] ?? 'index';
+    $action = $_GET['action'] ?? ($_POST['action'] ?? 'index');
     if ($action === 'nieuw') {
         $controller->nieuw();
+    } elseif ($action === 'verstuur') {
+        $controller->verstuur();
+    } elseif ($action === 'feedback') {
+        $controller->feedback();
     } else {
         $controller->index();
     }

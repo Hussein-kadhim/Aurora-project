@@ -42,6 +42,21 @@ class MeldingController {
         try {
             $totalFiltered = $this->model->countMeldingen($filterType, $filterStatus, $filterDate);
             $meldingen     = $this->model->getMeldingen($filterType, $filterStatus, $filterDate, $limit, $offset);
+
+            if (!empty($meldingen)) {
+                $meldingIds = array_column($meldingen, 'Id');
+                $allFeedback = $this->model->getFeedbackForMeldingen($meldingIds);
+                
+                $feedbackByMelding = [];
+                foreach ($allFeedback as $fb) {
+                    $feedbackByMelding[$fb['MeldingId']][] = $fb;
+                }
+                
+                foreach ($meldingen as &$m) {
+                    $m['feedback'] = $feedbackByMelding[$m['Id']] ?? [];
+                }
+                unset($m);
+            }
         } catch (PDOException $e) {
             $techError = true;
         } catch (Throwable $e) {
@@ -232,5 +247,112 @@ class MeldingController {
 
         // Laad de view
         require_once __DIR__ . '/views/nieuw.php';
+    }
+
+    /**
+     * Actie voor het versturen van een bestaande melding.
+     *
+     * Happy scenario:
+     *   - GET  → toon bevestigingspagina met meldingdetails
+     *   - POST → verwerk het versturen, stel IsActief in op 0 (status: Verzonden)
+     *            en toon de NOTIFICATIONS success-pagina
+     *
+     * Unhappy scenario:
+     *   - Database niet beschikbaar → foutmelding getoond, status ongewijzigd
+     *   - Melding bestaat niet      → redirect naar overzicht
+     */
+    public function verstuur() {
+        // 1. Sessie
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 2. Toegangscontrole
+        $rol = $_SESSION['rol'] ?? '';
+        if (empty($_SESSION['ingelogd']) || empty($_SESSION['gebruiker_id']) || ($rol !== 'Administrator' && $rol !== 'Medewerker')) {
+            require_once __DIR__ . '/../includes/geen_toegang.php';
+            exit();
+        }
+
+        // 3. Melding-ID ophalen
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        if ($id <= 0) {
+            header('Location: meldingen.php');
+            exit();
+        }
+
+        $errors  = [];
+        $success = false;
+        $melding = null;
+
+        // 4. Haal de melding op (ook nodig voor de GET-view)
+        try {
+            $melding = $this->model->getMeldingById($id);
+        } catch (PDOException $e) {
+            $errors[] = 'Database is momenteel niet beschikbaar, uw melding kon niet worden opgeslagen. Probeer het later opnieuw.';
+        } catch (Throwable $e) {
+            $errors[] = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+        }
+
+        if (empty($errors) && $melding === null) {
+            // Melding bestaat niet → terug naar overzicht
+            header('Location: meldingen.php');
+            exit();
+        }
+
+        // 5. POST: verwerk het versturen
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($errors)) {
+            try {
+                $ok = $this->model->verstuurMelding($id);
+                if ($ok) {
+                    // Herlaad de melding zodat de view de bijgewerkte status toont
+                    $melding = $this->model->getMeldingById($id);
+                    $success = true;
+                } else {
+                    $errors[] = 'De melding kon niet worden verzonden. Mogelijk is de status al bijgewerkt.';
+                }
+            } catch (PDOException $e) {
+                $errors[] = 'Database is momenteel niet beschikbaar, uw melding kon niet worden opgeslagen. Probeer het later opnieuw.';
+            } catch (Throwable $e) {
+                $errors[] = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+            }
+        }
+
+        // 6. Laad de view
+        require_once __DIR__ . '/views/versturen.php';
+    }
+
+    /**
+     * Actie voor het opslaan van feedback op een melding.
+     */
+    public function feedback() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $meldingId = (int)($_POST['melding_id'] ?? 0);
+            $feedbackTekst = trim($_POST['feedback_tekst'] ?? '');
+            
+            // Haal gebruikerId uit sessie, of gebruik een test ID als bezoeker (aangezien de unhappy scenario eist dat we ingelogd zijn als bezoeker of we gebruiken gewoon de ingelogde gebruiker)
+            $gebruikerId = $_SESSION['gebruiker_id'] ?? 1; 
+
+            if ($meldingId > 0 && $feedbackTekst !== '') {
+                try {
+                    $this->model->saveFeedback($meldingId, $gebruikerId, $feedbackTekst);
+                    $_SESSION['success_message'] = 'Feedback succesvol opgeslagen.';
+                } catch (PDOException $e) {
+                    $_SESSION['error_message'] = 'Database is momenteel niet beschikbaar, uw feedback kon niet worden opgeslagen. Probeer het later opnieuw.';
+                } catch (Exception $e) {
+                    $_SESSION['error_message'] = $e->getMessage();
+                }
+            } else {
+                $_SESSION['error_message'] = 'Vul alle velden in om feedback te versturen.';
+            }
+        }
+        
+        // Redirect back to overview
+        header('Location: meldingen.php');
+        exit();
     }
 }
