@@ -1,8 +1,5 @@
 <?php
-/*
-  Auteur       : KadhimH (Modified by Antigravity)
-  Beschrijving : Formulier voor het wijzigen van een bestaande medewerker.
-*/
+
 
 $id              = $id ?? 0;
 $voornaam        = $voornaam ?? '';
@@ -27,14 +24,14 @@ $opmerking       = $opmerking ?? '';
 </head>
 <body>
 
-    <!-- Premium Navigatiebalk -->
+    <!-- Navigatiebalk: bevat de links voor het navigeren door de website -->
     <?php require_once __DIR__ . '/../../../includes/navbar.php'; ?>
 
-    <!-- Hoofdinhoud -->
+    <!-- Hoofdinhoud: bevat de belangrijkste inhoud van de pagina -->
     <main class="dashboard-content">
         <div class="container">
 
-            <!-- Terug Link -->
+            <!-- Terug Link: brengt de gebruiker terug naar de vorige pagina -->
             <div class="back-link-container">
                 <a href="index.php" class="back-link">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;">
@@ -44,7 +41,7 @@ $opmerking       = $opmerking ?? '';
                 </a>
             </div>
 
-            <!-- Dashboard Kop -->
+            <!-- Dashboard Kop: waar je de medewerker kan bewerken -->
             <div class="dashboard-header-row" style="margin-bottom: 24px;">
                 <div class="title-section">
                     <h2>Medewerker gegevens wijzigen</h2>
@@ -52,7 +49,7 @@ $opmerking       = $opmerking ?? '';
                 </div>
             </div>
 
-            <!-- Foutmeldingen -->
+            <!-- Foutmeldingen: toont meldingen wanneer er fout in de server is -->
             <?php if (!empty($fouten)): ?>
                 <div class="alert alert-danger" role="alert">
                     <div style="display: flex; align-items: flex-start;">
