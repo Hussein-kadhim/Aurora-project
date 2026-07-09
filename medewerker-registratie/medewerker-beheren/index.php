@@ -1,10 +1,4 @@
 <?php
-/*
-  Auteur       : KadhimH
-  Datum        : 2026-06-04
-  Beschrijving : Entrypoint voor het medewerkersoverzicht dashboard.
-  Opmerkingen  : Laadt de database configuratie, de controller en start de actie.
-*/
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

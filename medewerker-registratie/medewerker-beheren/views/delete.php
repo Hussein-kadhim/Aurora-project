@@ -1,8 +1,5 @@
 <?php
-/*
-  Auteur       : KadhimH (Modified by Antigravity)
-  Beschrijving : Bevestigingspagina voor het verwijderen van een medewerker.
-*/
+
 
 $medewerker  = $medewerker ?? [];
 $naam        = $naam ?? '';
@@ -40,7 +37,7 @@ $foutmelding = $foutmelding ?? '';
                 </a>
             </div>
 
-            <!-- Dashboard Kop -->
+            <!-- Dashboard Kop: bevat de titel en introductie van het dashboard -->
             <div class="dashboard-header-row" style="margin-bottom: 24px;">
                 <div class="title-section">
                     <h2>Medewerker verwijderen</h2>
@@ -48,7 +45,7 @@ $foutmelding = $foutmelding ?? '';
                 </div>
             </div>
 
-            <!-- Bevestigingskaart -->
+            <!-- Bevestigingskaart: wordt weergegeven na een succesvolle verzending -->
             <div class="form-card">
                 <div class="delete-warning-box" style="background: rgba(211, 16, 39, 0.06); border: 1px solid rgba(211, 16, 39, 0.2); border-radius: 10px; padding: 24px; margin-bottom: 24px; text-align: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#D31027" style="width: 48px; height: 48px; margin-bottom: 12px;">
@@ -58,7 +55,7 @@ $foutmelding = $foutmelding ?? '';
                     <p style="color: #555; margin: 0; font-size: 0.95rem;">U staat op het punt om de onderstaande medewerker te verwijderen uit het systeem.</p>
                 </div>
 
-                <!-- Medewerker Gegevens Overzicht -->
+                <!-- Medewerker Gegevens Overzicht: toont een overzicht van de gegevens van de medewerker  -->
                 <div style="background: #FAFAF5; border: 1px solid #E5D3B3; border-radius: 10px; padding: 20px; margin-bottom: 24px;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <tr>
