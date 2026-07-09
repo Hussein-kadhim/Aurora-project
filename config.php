@@ -3,7 +3,7 @@
 
 $host     = "localhost";
 $dbname   = "Aurora";   
-$user     = "root";
+$user     = "";
 $password = "";
 
 $options = [

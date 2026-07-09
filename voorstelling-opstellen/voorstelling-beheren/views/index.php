@@ -44,12 +44,6 @@
                 </script>
             <?php endif; ?>
 
-            <?php if (!empty($_GET['error']) && $_GET['error'] === 'delete_failed'): ?>
-                <div id="error-alert" class="alert alert-danger" style="background-color: #FEE2E2; color: #B91C1C; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #EF4444; transition: opacity 0.5s ease;">
-                    <strong>Fout!</strong> Kon de voorstelling niet verwijderen. Probeer het later opnieuw.
-                </div>
-            <?php endif; ?>
-
             <?php if ($dbFout): ?>
                 <!-- Unhappy Scenario: Server niet bereikbaar -->
                 <div class="empty-state-card" role="alert">
@@ -58,7 +52,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h3>Server niet bereikbaar</h3>
+                    <h3>Er ging iets mis</h3>
                     <p><?= htmlspecialchars($foutmelding) ?></p>
                 </div>
 

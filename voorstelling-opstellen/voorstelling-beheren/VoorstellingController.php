@@ -28,6 +28,12 @@ class VoorstellingController {
         
         $search = trim($_GET['search'] ?? '');
 
+        // Unhappy scenario voor verwijderen
+        if (isset($_GET['error']) && $_GET['error'] === 'delete_failed') {
+            $dbFout = true;
+            $foutmelding = 'Er is een fout opgetreden. Probeer het later opnieuw.';
+        }
+
         try {
             // 3. Haal data op uit het Model
             $voorstellingen = $this->model->getAllVoorstellingen($search);
