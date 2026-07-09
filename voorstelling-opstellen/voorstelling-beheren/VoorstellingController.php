@@ -34,10 +34,10 @@ class VoorstellingController {
             $totalCount = $this->model->getVoorstellingCount();
         } catch (PDOException $e) {
             $dbFout = true;
-            $foutmelding = 'De server is momenteel niet bereikbaar.';
+            $foutmelding = 'Er is een fout opgetreden. Probeer het later opnieuw.';
         } catch (Throwable $e) {
             $dbFout = true;
-            $foutmelding = 'Er is een onverwachte fout opgetreden.';
+            $foutmelding = 'Er is een fout opgetreden. Probeer het later opnieuw.';
         }
 
         // 4. Laad de view

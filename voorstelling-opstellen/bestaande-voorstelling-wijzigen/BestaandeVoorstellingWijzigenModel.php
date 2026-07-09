@@ -29,6 +29,12 @@ class BestaandeVoorstellingWijzigenModel {
         int    $maxAantalTickets,
         string $beschikbaarheid
     ): void {
+        // UNHAPPY SCENARIO TRIGGER:
+        // Als de nieuwe naam "Unhappy Edit" of "Error" bevat, simuleren we een serverfout.
+        if (stripos($naam, 'Unhappy Edit') !== false || stripos($naam, 'Error') !== false) {
+            throw new Exception("Gesimuleerde database fout voor het unhappy scenario (Wijzigen).");
+        }
+
         $query = "
             UPDATE Voorstelling
             SET Naam = :naam,

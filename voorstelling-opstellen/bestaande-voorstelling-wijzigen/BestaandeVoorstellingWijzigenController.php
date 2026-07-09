@@ -107,10 +107,10 @@ class BestaandeVoorstellingWijzigenController {
 
                 } catch (PDOException $e) {
                     $dbFout      = true;
-                    $foutmelding = 'De server is momenteel niet bereikbaar. Probeer het later opnieuw.';
+                    $foutmelding = 'Er is een fout opgetreden. Probeer het later opnieuw.';
                 } catch (Throwable $e) {
                     $dbFout      = true;
-                    $foutmelding = 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.';
+                    $foutmelding = 'Er is een fout opgetreden. Probeer het later opnieuw.';
                 }
             }
         }
